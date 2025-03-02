@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
-using tres_comas.Data;
+using TresComas.Data;
 
-namespace tres_comas.Components.Account;
+namespace TresComas.Components.Account;
 
 internal sealed class IdentityUserAccessor(UserManager<ApplicationUser> userManager, IdentityRedirectManager redirectManager)
 {

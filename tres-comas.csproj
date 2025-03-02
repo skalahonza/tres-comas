@@ -4,15 +4,15 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-tres_comas-b5109f10-81c6-44b3-9142-c61f091e6659</UserSecretsId>
-    <RootNamespace>tres_comas</RootNamespace>
-    <AssemblyName>`$(AssemblyName.Replace(' ', '_'))</AssemblyName>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+    <UserSecretsId>aspnet-TresComas-b5109f10-81c6-44b3-9142-c61f091e6659</UserSecretsId>
+    <RootNamespace>TresComas</RootNamespace>
+    <AssemblyName>TresComas</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
     <None Update="Data\app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
   </ItemGroup>
-
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="9.*" />

@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
-using tres_comas.Components.Account.Pages;
-using tres_comas.Components.Account.Pages.Manage;
-using tres_comas.Data;
+using TresComas.Components.Account.Pages;
+using TresComas.Components.Account.Pages.Manage;
+using TresComas.Data;
 
 namespace Microsoft.AspNetCore.Routing;
 

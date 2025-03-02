@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
-using tres_comas.Components;
-using tres_comas.Components.Account;
-using tres_comas.Data;
+using TresComas.Components;
+using TresComas.Components.Account;
+using TresComas.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components;
 
-namespace tres_comas.Components.Account;
+namespace TresComas.Components.Account;
 
 internal sealed class IdentityRedirectManager(NavigationManager navigationManager)
 {

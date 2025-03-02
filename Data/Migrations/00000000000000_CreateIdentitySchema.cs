@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace tres_comas.Migrations
+namespace TresComas.Migrations
 {
     /// <inheritdoc />
     public partial class CreateIdentitySchema : Migration

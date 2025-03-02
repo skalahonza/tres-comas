@@ -53,4 +53,4 @@ COPY --from=build /app .
 # and https://github.com/dotnet/dotnet-docker/discussions/4764
 USER $APP_UID
 
-ENTRYPOINT ["dotnet", "tres-comas.dll"]
+ENTRYPOINT ["dotnet", "TresComas.dll"]
