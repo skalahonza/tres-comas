@@ -12,20 +12,25 @@ public class TidepoolBgValuesSyncService(ITidepoolClientFactory tidepoolFactory,
     public async Task DoSync()
     {
         var connection = factory.CreateDbContext();
-        var client = await tidepoolFactory.CreateAsync();
+        var users = await connection.TidepoolUserSettings.ToListAsync();
 
-        var lastValue = await connection.BgValues.OrderByDescending(x => x.Time).FirstOrDefaultAsync();
-        var lastTime = lastValue?.Time ?? DateTime.Now;
-
-        var values = await client.GetBgValues(lastTime);
-
-        await connection.BgValues.AddRangeAsync(values.Select(x => new BgValue()
+        foreach (var user in users)
         {
-            ExternalId = x.Id,
-            Time = x.Time!.Value,
-            Value = x.Units == "mmol/l" ? x.Value : x.Value / 18,
-        }));
+            var client = await tidepoolFactory.CreateAsync(user.TidepoolUsername, user.TidepoolPassword);
 
-        await connection.SaveChangesAsync();
+            var lastValue = await connection.BgValues.OrderByDescending(x => x.Time).FirstOrDefaultAsync();
+            var lastTime = lastValue?.Time.AddMinutes(1) ?? DateTime.Today.AddDays(-7);
+            var values = await client.GetBgValues(lastTime);
+
+            await connection.BgValues.AddRangeAsync(values.Select(x => new BgValue()
+            {
+                ExternalId = x.Id,
+                Time = x.Time!.Value,
+                Value = x.Units == "mmol/l" ? x.Value : x.Value / 18,
+                UserId = user.UserId,
+            }));
+
+            await connection.SaveChangesAsync();
+        }
     }
 }

@@ -17,19 +17,19 @@
         <PropertyColumn Property="x => x.Value" />
         <PropertyColumn Property="x => x.Units" />
         <PropertyColumn Property="x => x.UploadId" />
-        <PropertyColumn Property="x => x.Time"/>
+        <PropertyColumn Property="x => x.Time" />
     </Columns>
 </MudDataGrid>
 
 <MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="IncrementCount">Click me</MudButton>
 
 @code {
-    private int currentCount = 0; 
+    private int currentCount = 0;
     private IEnumerable<BgValue> Elements = [];
 
     protected async override Task OnInitializedAsync()
     {
-        var client = await _factory.CreateAsync();
+        var client = await _factory.CreateAsync("", "");
         Elements = await client.GetBgValues(DateTime.Today.AddDays(-2));
     }
 

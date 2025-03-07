@@ -1,5 +1,7 @@
 ﻿using Pathoschild.Http.Client;
+
 using System.Globalization;
+
 using Tidepool.Extensions;
 using Tidepool.Model.Tidepool;
 
@@ -7,18 +9,18 @@ namespace Tidepool.Services.Tidepool;
 
 public class TidepoolClient : ITidepoolClient
 {
+    private readonly string _userId;
     private readonly IClient _client;
-    private readonly TidepoolClientOptions _options;
 
-    internal TidepoolClient(IClient client, TidepoolClientOptions options)
+    internal TidepoolClient(IClient client, string userId)
     {
         _client = client;
-        _options = options;
+        _userId = userId;
     }
 
     public async Task<IReadOnlyList<Bolus>> GetBolusAsync(DateTime? start = null, DateTime? end = null) =>
         await _client
-            .GetAsync($"data/{_options.UserId}")
+            .GetAsync($"data/{_userId}")
             .WithArgument("startDate", start?.ToUniversalTime().ToString("o"))
             .WithArgument("endDate", end?.ToUniversalTime().ToString("o"))
             .WithArgument("type", nameof(DataType.Bolus).ToCamelCase())
@@ -26,7 +28,7 @@ public class TidepoolClient : ITidepoolClient
 
     public async Task<IReadOnlyList<Food>> GetFoodAsync(DateTime? start = null, DateTime? end = null) =>
         await _client
-            .GetAsync($"data/{_options.UserId}")
+            .GetAsync($"data/{_userId}")
             .WithArgument("startDate", start?.ToUniversalTime().ToString("o"))
             .WithArgument("endDate", end?.ToUniversalTime().ToString("o"))
             .WithArgument("type", nameof(DataType.Food).ToCamelCase())
@@ -35,7 +37,7 @@ public class TidepoolClient : ITidepoolClient
     public async Task<IReadOnlyList<PhysicalActivity>> GetPhysicalActivityAsync(DateTime? start = null,
         DateTime? end = null) =>
         await _client
-            .GetAsync($"data/{_options.UserId}")
+            .GetAsync($"data/{_userId}")
             .WithArgument("startDate", start?.ToUniversalTime().ToString("o"))
             .WithArgument("endDate", end?.ToUniversalTime().ToString("o"))
             .WithArgument("type", nameof(DataType.PhysicalActivity).ToCamelCase())
@@ -44,7 +46,7 @@ public class TidepoolClient : ITidepoolClient
     public async Task<IReadOnlyList<PumpSettings>> GetPumpSettingsAsync(DateTime? start = null,
         DateTime? end = null) =>
         await _client
-            .GetAsync($"data/{_options.UserId}")
+            .GetAsync($"data/{_userId}")
             .WithArgument("startDate", start?.ToUniversalTime().ToString("o"))
             .WithArgument("endDate", end?.ToUniversalTime().ToString("o"))
             .WithArgument("type", nameof(DataType.PumpSettings).ToCamelCase())
@@ -58,7 +60,7 @@ public class TidepoolClient : ITidepoolClient
         // Allowed values: cbg, smbg
         var types = string.Join(',', nameof(DataType.Cbg), nameof(DataType.Smbg));
         return await _client
-            .GetAsync($"data/{_options.UserId}")
+            .GetAsync($"data/{_userId}")
             .WithArgument("startDate", start?.ToUniversalTime().ToString("o"))
             .WithArgument("endDate", end?.ToUniversalTime().ToString("o"))
             .WithArgument("type", types.ToLower(CultureInfo.InvariantCulture))

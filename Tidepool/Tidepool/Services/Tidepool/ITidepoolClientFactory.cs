@@ -2,5 +2,5 @@
 
 public interface ITidepoolClientFactory
 {
-    Task<ITidepoolClient> CreateAsync();
+    Task<ITidepoolClient> CreateAsync(string user, string pass);
 }

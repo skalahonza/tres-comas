@@ -6,4 +6,5 @@ public class BgValue
     public required string ExternalId { get; set; }
     public required double Value { get; set; }
     public required DateTime Time { get; set; }
+    public required string UserId { get; set; }
 }
