@@ -1,4 +1,5 @@
 ﻿using Pathoschild.Http.Client;
+using System.Globalization;
 using Tidepool.Extensions;
 using Tidepool.Model.Tidepool;
 
@@ -60,7 +61,7 @@ public class TidepoolClient : ITidepoolClient
             .GetAsync($"data/{_options.UserId}")
             .WithArgument("startDate", start?.ToUniversalTime().ToString("o"))
             .WithArgument("endDate", end?.ToUniversalTime().ToString("o"))
-            .WithArgument("type", types.ToLower())
+            .WithArgument("type", types.ToLower(CultureInfo.InvariantCulture))
             .AsArray<BgValue>();
     }
 }

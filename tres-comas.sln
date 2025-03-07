@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{0
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tidepool", "Tidepool\Tidepool\Tidepool.csproj", "{8BB33D97-1F94-42E0-BB31-B776D51BB850}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayer", "DataLayer\DataLayer.csproj", "{438C81CF-526C-4C11-A032-024F1FC67C52}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{8BB33D97-1F94-42E0-BB31-B776D51BB850}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BB33D97-1F94-42E0-BB31-B776D51BB850}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BB33D97-1F94-42E0-BB31-B776D51BB850}.Release|Any CPU.Build.0 = Release|Any CPU
+		{438C81CF-526C-4C11-A032-024F1FC67C52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{438C81CF-526C-4C11-A032-024F1FC67C52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{438C81CF-526C-4C11-A032-024F1FC67C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{438C81CF-526C-4C11-A032-024F1FC67C52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
