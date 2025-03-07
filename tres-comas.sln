@@ -8,7 +8,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tidepool", "Tidepool\Tidepo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayer", "DataLayer\DataLayer.csproj", "{438C81CF-526C-4C11-A032-024F1FC67C52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FHIR", "FHIR\FHIR\FHIR.csproj", "{061F89ED-9D2B-4168-BE3E-2B959FA784C2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FHIR", "FHIR\FHIR.csproj", "{061F89ED-9D2B-4168-BE3E-2B959FA784C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
