@@ -1,10 +1,8 @@
-﻿namespace DataLayer.Entities;
+﻿using DataLayer.Common;
 
-public class BgValue
+namespace DataLayer.Entities;
+
+public class BgValue : TimeSeriesEntity
 {
-    public int Id { get; set; }
-    public required string ExternalId { get; set; }
     public required double Value { get; set; }
-    public required DateTime Time { get; set; }
-    public required string UserId { get; set; }
 }

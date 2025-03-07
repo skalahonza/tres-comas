@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DataLayer.Configurations;
 
-internal class BgValueConfiguration : IEntityTypeConfiguration<BgValue>
+internal class BolusValueConfiguration : IEntityTypeConfiguration<BolusValue>
 {
-    public void Configure(EntityTypeBuilder<BgValue> builder)
+    public void Configure(EntityTypeBuilder<BolusValue> builder)
     {
         builder.ConfigureTimeSeriesEntity();
     }

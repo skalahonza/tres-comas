@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DataLayer.Configurations;
 
-internal class BgValueConfiguration : IEntityTypeConfiguration<BgValue>
+internal class CarbsValueConfiguration : IEntityTypeConfiguration<CarbsValue>
 {
-    public void Configure(EntityTypeBuilder<BgValue> builder)
+    public void Configure(EntityTypeBuilder<CarbsValue> builder)
     {
         builder.ConfigureTimeSeriesEntity();
     }
