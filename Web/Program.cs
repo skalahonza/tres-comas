@@ -1,13 +1,21 @@
+using Coravel;
+
 using DataLayer;
 using DataLayer.Entities;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 using MudBlazor.Services;
+
+using Tidepool.Extensions;
+
 using TresComas.Components;
 using TresComas.Components.Account;
+using TresComas.Invocables;
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
 // Add MudBlazor services
 builder.Services.AddMudServices();
@@ -28,9 +36,11 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-builder.Services.AddDataLayer(builder.Configuration);
+builder.Services.AddDataLayer(configuration);
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddScheduler();
+builder.Services.AddTidepoolClient((settings, configuration) => configuration.GetSection("Tidepool").Bind(settings));
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -43,6 +53,8 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+app.Services.UseScheduler(s => s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly());
 
 // Add health check endpoint
 app.UseHealthChecks("/health");

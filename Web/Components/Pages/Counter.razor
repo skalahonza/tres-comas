@@ -1,15 +1,37 @@
 ﻿@page "/counter"
 
+@using Tidepool.Model.Tidepool
+@using Tidepool.Services.Tidepool
+
+@inject ITidepoolClientFactory _factory
+
 <PageTitle>Counter</PageTitle>
 
 <MudText Typo="Typo.h3" GutterBottom="true">Counter</MudText>
 
 <MudText Typo="Typo.body1" Class="mb-4">Current count: @currentCount</MudText>
 
+<MudDataGrid Items="@Elements">
+    <Columns>
+        <PropertyColumn Property="x => x.Id" />
+        <PropertyColumn Property="x => x.Value" />
+        <PropertyColumn Property="x => x.Units" />
+        <PropertyColumn Property="x => x.UploadId" />
+        <PropertyColumn Property="x => x.Time"/>
+    </Columns>
+</MudDataGrid>
+
 <MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="IncrementCount">Click me</MudButton>
 
 @code {
-    private int currentCount = 0;
+    private int currentCount = 0; 
+    private IEnumerable<BgValue> Elements = [];
+
+    protected async override Task OnInitializedAsync()
+    {
+        var client = await _factory.CreateAsync();
+        Elements = await client.GetBgValues(DateTime.Today.AddDays(-2));
+    }
 
     private void IncrementCount()
     {
