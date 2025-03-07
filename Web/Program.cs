@@ -54,7 +54,7 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-app.Services.UseScheduler(s => s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly());
+//app.Services.UseScheduler(s => s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly());
 
 // Add health check endpoint
 app.UseHealthChecks("/health");
