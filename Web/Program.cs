@@ -46,6 +46,9 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+// Add health check endpoint
+app.UseHealthChecks("/health");
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -68,7 +71,5 @@ app.MapRazorComponents<App>()
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
 
-// Add health check endpoint
-app.UseHealthChecks("/health");
 
 app.Run();
