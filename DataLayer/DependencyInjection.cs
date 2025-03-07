@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TresComas.Data;
 
 namespace DataLayer;
 
@@ -8,8 +9,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddDataLayer(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContext<AppDbContext>(opt => opt.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
-
+        services.AddDbContext<ApplicationDbContext>(opt => opt.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
         return services;
     }
 }
