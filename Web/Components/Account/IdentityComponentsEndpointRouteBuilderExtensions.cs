@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using DataLayer.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using TresComas.Components.Account.Pages;
 using TresComas.Components.Account.Pages.Manage;
-using TresComas.Data;
 
 namespace Microsoft.AspNetCore.Routing;
 

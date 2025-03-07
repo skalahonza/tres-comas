@@ -1,11 +1,11 @@
 using DataLayer;
+using DataLayer.Entities;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MudBlazor.Services;
 using TresComas.Components;
 using TresComas.Components.Account;
-using TresComas.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,4 +71,14 @@ app.MapAdditionalIdentityEndpoints();
 // Add health check endpoint
 app.UseHealthChecks("/health");
 
+await MigrateAsync();
+
 app.Run();
+
+
+async Task MigrateAsync()
+{
+    using var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
+    using var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await context.Database.MigrateAsync();
+}
