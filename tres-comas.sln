@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tidepool", "Tidepool\Tidepo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayer", "DataLayer\DataLayer.csproj", "{438C81CF-526C-4C11-A032-024F1FC67C52}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FHIR", "FHIR\FHIR\FHIR.csproj", "{061F89ED-9D2B-4168-BE3E-2B959FA784C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{438C81CF-526C-4C11-A032-024F1FC67C52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{438C81CF-526C-4C11-A032-024F1FC67C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{438C81CF-526C-4C11-A032-024F1FC67C52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{061F89ED-9D2B-4168-BE3E-2B959FA784C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{061F89ED-9D2B-4168-BE3E-2B959FA784C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{061F89ED-9D2B-4168-BE3E-2B959FA784C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{061F89ED-9D2B-4168-BE3E-2B959FA784C2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
