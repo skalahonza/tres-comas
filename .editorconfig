@@ -1,0 +1,130 @@
+﻿[*.cs]
+
+# RCS1077: Optimize LINQ method call.
+dotnet_diagnostic.RCS1077.severity = error
+
+# RCS1246: Use element access.
+dotnet_diagnostic.RCS1246.severity = error
+
+# IDE0005: Using directive is unnecessary.
+dotnet_diagnostic.IDE0005.severity = error
+
+# IDE0051: Remove unused private members.
+dotnet_diagnostic.IDE0051.severity = error
+
+# IDE0028: Simplify collection initialization
+dotnet_diagnostic.IDE0028.severity = error
+
+# IDE0074: Use compound assignment
+dotnet_diagnostic.IDE0074.severity = error
+
+# RCS1213: Remove unused member declaration
+dotnet_diagnostic.RCS1213.severity = error
+
+# IDE0301: Simplify collection initialization
+dotnet_diagnostic.IDE0301.severity = error
+
+# IDE0300: Simplify collection initialization
+dotnet_diagnostic.IDE0300.severity = error
+
+# IDE0305: Simplify collection initialization
+dotnet_diagnostic.IDE0305.severity = error
+
+# IDE0290: Use primary constructor
+dotnet_diagnostic.IDE0290.severity = error
+
+# RCS0036: Remove unnecessary blank line
+dotnet_diagnostic.RCS0036.severity = error
+
+# IDE0200: Remove unnecessary lambda expression
+dotnet_diagnostic.IDE0200.severity = error
+
+# RCS1163: Unused parameter
+dotnet_diagnostic.RCS1163.severity = error
+
+# RCS1084: Use coalesce expression instead of conditional expression
+dotnet_diagnostic.RCS1084.severity = error
+
+# RCS1259: Remove empty syntax
+dotnet_diagnostic.RCS1259.severity = error
+
+# RCS1160: Abstract type should not have public constructors
+dotnet_diagnostic.RCS1160.severity = error
+
+# IDE0055: Fix formatting
+dotnet_diagnostic.IDE0055.severity = error
+
+# RCS1251: Remove unnecessary braces from record declaration
+dotnet_diagnostic.RCS1251.severity = error
+
+# RCS1143: Simplify coalesce expression
+dotnet_diagnostic.RCS1143.severity = error
+
+# RCS1061: Merge 'if' with nested 'if'
+dotnet_diagnostic.RCS1061.severity = error
+
+# IDE0001: Simplify Names
+dotnet_diagnostic.IDE0001.severity = error
+
+# IDE0130: Namespace does not match folder structure
+dotnet_diagnostic.IDE0130.severity = error
+
+# RCS1006: Merge 'else' with nested 'if'
+dotnet_diagnostic.RCS1006.severity = error
+
+# IDE0161: Convert to file-scoped namespace
+dotnet_diagnostic.IDE0161.severity = error
+
+# RCS1074: Remove redundant constructor
+dotnet_diagnostic.RCS1074.severity = error
+
+# CA1847: Use char literal for a single character lookup
+dotnet_diagnostic.CA1847.severity = error
+
+# IDE0130: Namespace does not match folder structure
+dotnet_style_namespace_match_folder = true
+
+# CA1854: Prefer the 'IDictionary.TryGetValue(TKey, out TValue)' method
+dotnet_diagnostic.CA1854.severity = error
+
+# CA1510: Use ArgumentNullException throw helper
+dotnet_diagnostic.CA1510.severity = error
+
+# IDE0004: Remove Unnecessary Cast
+dotnet_diagnostic.IDE0004.severity = error
+
+# IDE0056: Use index operator
+dotnet_diagnostic.IDE0056.severity = error
+
+# IDE1006: Naming Styles
+dotnet_diagnostic.IDE1006.severity = error
+
+# CA1862: Use the 'StringComparison' method overloads to perform case-insensitive string comparisons
+dotnet_diagnostic.CA1862.severity = error
+
+# CA1311: Specify a culture or use an invariant version
+dotnet_diagnostic.CA1311.severity = error
+
+# CS1998: Async method lacks 'await' operators and will run synchronously
+dotnet_diagnostic.CS1998.severity = error
+
+# IDE0047: Remove unnecessary parentheses
+dotnet_diagnostic.IDE0047.severity = error
+
+# RCS1261: Resource can be disposed asynchronously
+dotnet_diagnostic.RCS1261.severity = error
+
+# RCS1124: Inline local variable
+dotnet_diagnostic.RCS1124.severity = error
+
+# CS9236: Compiling requires binding the lambda expression many times. Consider declaring the lambda expression with explicit parameter types, or if the containing method call is generic, consider using explicit type arguments.
+dotnet_diagnostic.CS9236.severity = error
+
+# RCS1129: Remove redundant field initialization
+dotnet_diagnostic.RCS1129.severity = error
+
+# CA1805: Do not initialize unnecessarily
+dotnet_diagnostic.CA1805.severity = error
+
+# ASP0018: Unused route parameter
+dotnet_diagnostic.ASP0018.severity = error
