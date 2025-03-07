@@ -1,5 +1,5 @@
+using DataLayer.Entities;
 using Microsoft.AspNetCore.Identity;
-using TresComas.Data;
 
 namespace TresComas.Components.Account;
 
