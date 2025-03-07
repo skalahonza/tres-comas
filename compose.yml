@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: tres-comas-db
+    environment:
+      POSTGRES_DB: tres-comas
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
