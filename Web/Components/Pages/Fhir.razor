@@ -1,0 +1,28 @@
+@page "/Fhir"
+@using Hl7.Fhir.Model
+@using FHIR
+@using Task = System.Threading.Tasks.Task
+
+@inject FhirClientFactory FhirClientFactory
+
+<h3>Fhir</h3>
+<div>@PatientName</div>
+<MudButton OnClick="Callback">Load data</MudButton>
+
+@code {
+    public string PatientName { get; set; } = "";
+    
+    private async Task Callback()
+    {
+        var fhir = FhirClientFactory.Client;
+        var patient = await fhir.ReadAsync<Patient>("Patient/1");
+        
+        if (patient is null)
+        {
+            return;
+        }
+        
+        PatientName = patient.Name[0].Given.First();
+    }
+
+}

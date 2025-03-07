@@ -2,7 +2,7 @@ using Coravel;
 
 using DataLayer;
 using DataLayer.Entities;
-
+using FHIR.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +45,7 @@ builder.Services.AddTidepoolClient((settings, configuration) => configuration.Ge
 builder.Services.AddTransient<TidepoolBgValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolBgValuesSyncService>();
 builder.Services.AddScheduler();
+builder.AddFhir();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()
