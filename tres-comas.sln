@@ -4,6 +4,8 @@ VisualStudioVersion = 17.14.35821.62
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web", "Web\Web.csproj", "{066F3566-0101-4942-B43D-D4A403787BFC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tidepool", "Tidepool\Tidepool\Tidepool.csproj", "{8BB33D97-1F94-42E0-BB31-B776D51BB850}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,6 +16,10 @@ Global
 		{066F3566-0101-4942-B43D-D4A403787BFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{066F3566-0101-4942-B43D-D4A403787BFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{066F3566-0101-4942-B43D-D4A403787BFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BB33D97-1F94-42E0-BB31-B776D51BB850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BB33D97-1F94-42E0-BB31-B776D51BB850}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BB33D97-1F94-42E0-BB31-B776D51BB850}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BB33D97-1F94-42E0-BB31-B776D51BB850}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
