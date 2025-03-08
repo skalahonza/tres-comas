@@ -55,6 +55,7 @@ builder.Services.AddScoped<UserProvider>();
 builder.Services.AddScoped<TidepoolCoreSyncService>();
 builder.Services.AddScoped<DexcomCoreSyncService>();
 builder.Services.AddScoped<TotalDataSyncService>();
+builder.Services.AddScoped<DashboardDataService>();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -65,7 +66,7 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 
 
 // Add health checks
-builder.Services.AddHealthChecks(); 
+builder.Services.AddHealthChecks();
 
 builder.Services.UseMinimalHttpLogger();
 
