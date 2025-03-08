@@ -15,6 +15,8 @@ internal static class TimeSeriesEntityExtensions
             .HasForeignKey(e => e.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasIndex(x => x.Time);
+
         return builder;
     }
 }
