@@ -3,6 +3,7 @@ using DataLayer.Entities;
 using Dexcom.Services;
 using Microsoft.EntityFrameworkCore;
 using Tidepool.Services.Tidepool;
+using TresComas.Invocables;
 
 namespace TresComas.Services;
 
@@ -12,7 +13,8 @@ public class TotalDataSyncService(
     ITidepoolClientFactory tidepoolClientFactory,
     IDexcomClientFactory dexcomClientFactory,
     TidepoolCoreSyncService tidepollSyncService,
-    DexcomCoreSyncService dexcomSyncService)
+    DexcomCoreSyncService dexcomSyncService,
+    FhirSync fhirSync)
 {
     private const int DAY_STEP_SIZE = 30;
 
@@ -84,10 +86,16 @@ public class TotalDataSyncService(
         } while (shouldContinue);
     }
 
-    public async Task ClearData(string? userId)
+    private async Task ClearData(string? userId)
     {
-        using var dbContext = await contextFactory.CreateDbContextAsync();
-
+        await using var dbContext = await contextFactory.CreateDbContextAsync();
+        
+        var patientId = await dbContext.Users.Where(x => x.Id == userId).Select(x => x.FhirId).FirstOrDefaultAsync();
+        if (!string.IsNullOrEmpty(patientId))
+        {
+            await fhirSync.DeleteValues(patientId);
+        }
+        
         await dbContext.BgValues.Where(x => x.UserId == userId).ExecuteDeleteAsync();
         await dbContext.BolusValues.Where(x => x.UserId == userId).ExecuteDeleteAsync();
         await dbContext.CarbsValues.Where(x => x.UserId == userId).ExecuteDeleteAsync();

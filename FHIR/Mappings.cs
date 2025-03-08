@@ -14,6 +14,27 @@ using Hl7.Fhir.Model;
 
 public static class Mappings
 {
+    public static Observation CreateObservation(this BgValue bgValue, string patientId)
+    {
+        var id = Guid.CreateVersion7();
+        bgValue.FhirId = id.ToString();
+        return new Observation
+        {
+            Id = id.ToString(),
+            Subject = new ResourceReference($"Patient/{patientId}"),
+            Status = ObservationStatus.Final,
+            Code = new CodeableConcept("http://loinc.org", "15074-8", "Glucose [Moles/volume] in Blood"),
+            Value = new Quantity
+            {
+                Value = (decimal)bgValue.Value,
+                Unit = "mmol/L",
+                System = "http://unitsofmeasure.org",
+                Code = "mmol/L"
+            },
+            Effective = new FhirDateTime(bgValue.Time)
+        };
+    }
+
     public static Observation CreateCarbsValueObservation(CarbsValue carbsValue)
     {
         return new Observation
@@ -47,7 +68,7 @@ public static class Mappings
             }
         };
     }
-    
+
     public static Patient CreatePatient(ApplicationUser user)
     {
         var patient = new Patient();
@@ -77,7 +98,8 @@ public static class Mappings
         };
     }
 
-    public static Communication CreateRecommendationCommunication(string patientId, string recommendation, DateTime issuedDate)
+    public static Communication CreateRecommendationCommunication(string patientId, string recommendation,
+        DateTime issuedDate)
     {
         return new Communication
         {

@@ -66,7 +66,7 @@
     private readonly Input _input = new();
     private readonly DexcomInput _dexcomInput = new();
     private bool _syncInProgress = false;
-    private DateTime? _syncStart = DateTime.Today.AddYears(-1);
+    private DateTime? _syncStart = DateTime.Today.AddMonths(-6);
 
     protected override async Task OnInitializedAsync()
     {
