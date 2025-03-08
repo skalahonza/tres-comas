@@ -4,11 +4,14 @@ using DataLayer;
 using DataLayer.Entities;
 using Dexcom;
 using FHIR.Extensions;
+
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using MudBlazor.Services;
+
+using Syncfusion.Blazor;
 
 using Tidepool.Extensions;
 
@@ -51,6 +54,7 @@ builder.Services.AddTransient<TidepoolProfileSyncInvocable>();
 builder.Services.AddTransient<DexcomBgValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolBgValuesSyncService>();
 builder.Services.AddScheduler();
+builder.Services.AddSyncfusionBlazor();
 builder.AddFhir();
 builder.Services.AddScoped<UserProvider>();
 
@@ -108,13 +112,35 @@ app.MapAdditionalIdentityEndpoints();
 
 
 await MigrateAsync();
+await EnsureDemoUserExists();
 
 app.Run();
+return;
 
 
 async Task MigrateAsync()
 {
     using var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
-    using var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await using var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await context.Database.MigrateAsync();
+}
+
+async Task EnsureDemoUserExists()
+{
+    using var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
+    var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var demoUser = await userManager.FindByIdAsync(ApplicationUser.DemoId);
+    if (demoUser is null)
+    {
+        demoUser = ApplicationUser.CreateDemoUser();
+        await userManager.CreateAsync(demoUser);
+    }
+    
+    // set password
+    var token = await userManager.GeneratePasswordResetTokenAsync(demoUser);
+    await userManager.ResetPasswordAsync(demoUser, token, ApplicationUser.DemoPassword);
+    
+    // confirm email
+    token = await userManager.GenerateEmailConfirmationTokenAsync(demoUser);
+    await userManager.ConfirmEmailAsync(demoUser, token);
 }

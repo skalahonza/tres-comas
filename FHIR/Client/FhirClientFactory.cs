@@ -1,7 +1,7 @@
 ﻿using Hl7.Fhir.Rest;
 using Microsoft.Extensions.Options;
 
-namespace FHIR;
+namespace FHIR.Client;
 
 public class FhirClientFactory
 {

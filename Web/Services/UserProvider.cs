@@ -1,4 +1,5 @@
 using DataLayer;
+using DataLayer.Entities;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,5 +20,11 @@ public class UserProvider(
         
         await using var context = await dbContextFactory.CreateDbContextAsync();
         return await context.Users.Where(u => u.UserName == username).Select(u => u.Id).FirstOrDefaultAsync();
+    }
+
+    public async Task<bool> IsDemo()
+    {
+        var id = await GetCurrentUserId();
+        return id == ApplicationUser.DemoId;
     }
 }

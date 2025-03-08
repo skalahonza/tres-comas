@@ -1,9 +1,18 @@
 ﻿@page "/counter"
 
-@using Tidepool.Model.Tidepool
-@using Tidepool.Services.Tidepool
+@using DataLayer
+@using DataLayer.Entities
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Charts
+@using TresComas.Services
+@using ValueType = Syncfusion.Blazor.Charts.ValueType
 
-@inject ITidepoolClientFactory _factory
+@inject UserProvider UserProvider
+@inject IDbContextFactory<ApplicationDbContext> _factory
+
+@attribute [Authorize]
 
 <PageTitle>Counter</PageTitle>
 
@@ -11,26 +20,152 @@
 
 <MudText Typo="Typo.body1" Class="mb-4">Current count: @currentCount</MudText>
 
-<MudDataGrid Items="@Elements">
-    <Columns>
-        <PropertyColumn Property="x => x.Id" />
-        <PropertyColumn Property="x => x.Value" />
-        <PropertyColumn Property="x => x.Units" />
-        <PropertyColumn Property="x => x.UploadId" />
-        <PropertyColumn Property="x => x.Time" />
-    </Columns>
-</MudDataGrid>
+<SfChart>
+    <ChartPrimaryXAxis ValueType="ValueType.DateTime" />
 
-<MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="IncrementCount">Click me</MudButton>
+    <ChartSeriesCollection>
+        <ChartSeries DataSource="@ChartData" XName="X" YName="Y" Type="ChartSeriesType.Spline" />
+    </ChartSeriesCollection>
+</SfChart>
+
+<SfChart>
+    <ChartPrimaryXAxis ValueType="ValueType.Double" />
+
+    <ChartSeriesCollection>
+        <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y1" Fill="green" Type="ChartSeriesType.StackingArea" />
+        <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y2" Fill="lightgreen" Type="ChartSeriesType.StackingArea" />
+        <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y3" Fill="yellow" Type="ChartSeriesType.StackingArea" />
+        <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y4" Fill="pink" Type="ChartSeriesType.StackingArea" />
+        <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y5" Fill="red" Type="ChartSeriesType.StackingArea" />
+        <ChartSeries DataSource="@GriResultValue" XName="X" YName="Y" Fill="black" Type="ChartSeriesType.Bubble" />
+    </ChartSeriesCollection>
+</SfChart>
+
+<MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="IncrementCount">GRI: @_gri</MudButton>
 
 @code {
+    private int _gri = 0;
     private int currentCount = 0;
-    private IEnumerable<BgValue> Elements = [];
+    private IEnumerable<BgValue> _elements = [];
+
+    public List<ChartTimeData> ChartData = [];
+    public List<ChartPoint> GriResultValue = [];
+    public List<GriRangeValue> GriRangeValues = [];
 
     protected async override Task OnInitializedAsync()
     {
-        var client = await _factory.CreateAsync("", "");
-        Elements = await client.GetBgValues(DateTime.Today.AddDays(-2));
+        var userId = await UserProvider.GetCurrentUserId();
+        if (string.IsNullOrEmpty(userId))
+            return;
+
+        using var connection = await _factory.CreateDbContextAsync();
+        _elements = await connection.BgValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).ToListAsync();
+
+        HandleBgValuesChartData(_elements);
+        CalculateGri(_elements);
+    }
+
+    private void HandleBgValuesChartData(IEnumerable<BgValue> elements)
+    {
+        ChartData = elements.Select(x => new ChartTimeData()
+        {
+            X = x.Time,
+            Y = x.Value,
+        }).ToList();
+    }
+
+    private void CalculateGri(IEnumerable<BgValue> elements)
+    {
+        double count = (double)elements.Count();
+        double veryLow, low, high, veryHigh;
+        veryLow = elements.Where(x => x.Value < 3.0).Count() / count * 100;
+        low = elements.Where(x => 3.0 < x.Value && x.Value < 3.9).Count() / count * 100;
+        high = elements.Where(x => 10.0 < x.Value && x.Value < 13.9).Count() / count * 100;
+        veryHigh = elements.Where(x => 13.9 < x.Value).Count() / count * 100;
+
+        var hypo = veryLow + (0.8 * low);
+        var hyper = veryHigh + (0.5 * high);
+        _gri = (int)((3.0 * hypo) + (1.6 * hyper));
+
+        GriResultValue = [new ChartPoint() { X = hypo, Y = hyper }];
+        GriRangeValues = [
+            new GriRangeValue()
+            {
+                X = 0,
+                Y1 = 12.5,
+                Y2 = 12.5,
+                Y3 = 12.5,
+                Y4 = 12.5,
+                Y5 = 12.5,
+            },
+            new GriRangeValue()
+            {
+                X = 6.6,
+                Y1 = 0,
+                Y2 = 12.5,
+                Y3 = 12.5,
+                Y4 = 12.5,
+                Y5 = 12.5,
+            },
+            new GriRangeValue()
+            {
+                X = 13.3,
+                Y1 = 0,
+                Y2 = 0,
+                Y3 = 12.5,
+                Y4 = 12.5,
+                Y5 = 12.5,
+            },
+            new GriRangeValue()
+            {
+                X = 20,
+                Y1 = 0,
+                Y2 = 0,
+                Y3 = 0,
+                Y4 = 12.5,
+                Y5 = 12.5,
+            },
+            new GriRangeValue()
+            {
+                X = 26.6,
+                Y1 = 0,
+                Y2 = 0,
+                Y3 = 0,
+                Y4 = 0,
+                Y5 = 12.5,
+            },
+            new GriRangeValue()
+            {
+                X = 33.3,
+                Y1 = 0,
+                Y2 = 0,
+                Y3 = 0,
+                Y4 = 0,
+                Y5 = 0,
+            }
+        ];
+    }
+
+    public class ChartTimeData
+    {
+        public DateTime X { get; set; }
+        public double Y { get; set; }
+    }
+
+    public class ChartPoint
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+    }
+
+    public class GriRangeValue
+    {
+        public double X { get; set; }
+        public double Y1 { get; set; }
+        public double Y2 { get; set; }
+        public double Y3 { get; set; }
+        public double Y4 { get; set; }
+        public double Y5 { get; set; }
     }
 
     private void IncrementCount()
