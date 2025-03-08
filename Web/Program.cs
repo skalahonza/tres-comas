@@ -47,11 +47,6 @@ builder.Services.AddDataLayer(configuration);
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddTidepoolClient((settings, configuration) => configuration.GetSection("Tidepool").Bind(settings));
 builder.Services.AddDexcom((settings, configuration) => configuration.GetSection("Dexcom").Bind(settings));
-builder.Services.AddTransient<TidepoolBgValuesSyncInvocable>();
-builder.Services.AddTransient<TidepoolBolusValuesSyncInvocable>();
-builder.Services.AddTransient<TidepoolCarbsValuesSyncInvocable>();
-builder.Services.AddTransient<TidepoolProfileSyncInvocable>();
-builder.Services.AddTransient<DexcomBgValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolBgValuesSyncService>();
 builder.Services.AddScheduler();
 builder.Services.AddSyncfusionBlazor();
@@ -74,16 +69,25 @@ builder.Services.AddHealthChecks();
 
 builder.Services.UseMinimalHttpLogger();
 
+// bg workers registration
+builder.Services.AddTransient<TidepoolBgValuesSyncInvocable>();
+builder.Services.AddTransient<TidepoolBolusValuesSyncInvocable>();
+builder.Services.AddTransient<TidepoolCarbsValuesSyncInvocable>();
+builder.Services.AddTransient<TidepoolProfileSyncInvocable>();
+builder.Services.AddTransient<DexcomBgValuesSyncInvocable>();
+builder.Services.AddTransient<FhirSync>();
+
 var app = builder.Build();
 
+// bg workers scheduling
 app.Services.UseScheduler(s =>
 {
     s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly().RunOnceAtStart();
     s.Schedule<TidepoolBolusValuesSyncInvocable>().Hourly().RunOnceAtStart();
     s.Schedule<TidepoolCarbsValuesSyncInvocable>().Hourly().RunOnceAtStart();
     s.Schedule<TidepoolProfileSyncInvocable>().Hourly().RunOnceAtStart();
-
     s.Schedule<DexcomBgValuesSyncInvocable>().Hourly().RunOnceAtStart();
+    s.Schedule<FhirSync>().Hourly().RunOnceAtStart();
 });
 
 // Add health check endpoint
