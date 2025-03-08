@@ -8,8 +8,7 @@ internal static class TimeSeriesEntityExtensions
 {
     public static EntityTypeBuilder<TEntity> ConfigureTimeSeriesEntity<TEntity>(this EntityTypeBuilder<TEntity> builder) where TEntity : TimeSeriesEntity
     {
-        builder.HasKey(e => e.Id);
-        builder.Property(e => e.Id).ValueGeneratedOnAdd();
+        builder.ConfigureEntity();
 
         builder.HasOne(e => e.User)
             .WithMany()

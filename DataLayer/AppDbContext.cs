@@ -10,6 +10,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<BgValue> BgValues => Set<BgValue>();
     public DbSet<BolusValue> BolusValues => Set<BolusValue>();
     public DbSet<CarbsValue> CarbsValues => Set<CarbsValue>();
+
+    public DbSet<Profile> Profiles => Set<Profile>();
+    public DbSet<ProfileSetting> ProfileSettings => Set<ProfileSetting>();
     public DbSet<TidepoolUserSettings> TidepoolUserSettings => Set<TidepoolUserSettings>();
 
     protected override void OnModelCreating(ModelBuilder builder)
