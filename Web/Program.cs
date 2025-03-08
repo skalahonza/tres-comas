@@ -2,12 +2,16 @@ using Coravel;
 
 using DataLayer;
 using DataLayer.Entities;
+
 using FHIR.Extensions;
+
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using MudBlazor.Services;
+
+using Syncfusion.Blazor;
 
 using Tidepool.Extensions;
 
@@ -48,6 +52,7 @@ builder.Services.AddTransient<TidepoolCarbsValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolProfileSyncInvocable>();
 builder.Services.AddTransient<TidepoolBgValuesSyncService>();
 builder.Services.AddScheduler();
+builder.Services.AddSyncfusionBlazor();
 builder.AddFhir();
 builder.Services.AddScoped<UserProvider>();
 
