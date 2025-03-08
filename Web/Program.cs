@@ -60,8 +60,15 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-//app.Services.UseScheduler(s => s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly());
-app.Services.UseScheduler(s => s.Schedule<TidepoolBolusValuesSyncInvocable>().Hourly().RunOnceAtStart());
+var tidepoolSyncEnabled = builder.Configuration.GetValue<bool>("TidepoolSyncEnabled");
+if (tidepoolSyncEnabled)
+{
+    app.Services.UseScheduler(s =>
+    {
+        s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly();
+        s.Schedule<TidepoolBolusValuesSyncInvocable>().Hourly();
+    });
+}
 
 // Add health check endpoint
 app.UseHealthChecks("/health");
