@@ -13,21 +13,41 @@
 @inject IDbContextFactory<ApplicationDbContext> _factory
 
 @attribute [Authorize]
+@attribute [StreamRendering(true)]
 
 <PageTitle>Counter</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Charts</MudText>
+<MudGrid>
+    <MudItem md="8">
+        <MudText Typo="Typo.h3" GutterBottom="true">Charts</MudText>
+    </MudItem>
+    <MudItem md="1">
+        <MudButton Variant="Variant.Filled" OnClick="MoveBack">Previous</MudButton>
+    </MudItem>
+    <MudItem md="2">
+        <MudText Typo="Typo.subtitle1" Style="text-align: center; margin-top: 4px;">@StartDateTime.ToShortDateString() - @EndDateTime.ToShortDateString()</MudText>
+    </MudItem>
+    <MudItem md="1">
+        <MudButton Variant="Variant.Filled" OnClick="MoveNext">Next</MudButton>
+    </MudItem>
+</MudGrid>
+
+@if (IsLoading)
+{
+    <MudText Typo="Typo.subtitle1">Loading @LoadingPart.</MudText>
+}
 
 <SfChart @ref="ChartBg" Width="100%" Height="70%" Title="Bg values in time">
     <ChartEvents ChartMouseMove="OnMouseEventChartBg" ChartMouseUp="OnMouseLeaveChartBg" ChartMouseDown="ChartMouseDown" />
     <ChartPrimaryYAxis Title="Bg values (mmol/l)" />
     <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Time" />
 
+    <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical" />
     <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
-    <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical"></ChartCrosshairSettings>
 
     <ChartSeriesCollection>
-        <ChartSeries DataSource="@ChartDataBg" XName="X" YName="Y" TooltipMappingName="Tooltip" Type="ChartSeriesType.Spline" />
+        <ChartSeries DataSource="@ChartDataBg" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="darkblue" Type="ChartSeriesType.Spline" />
+        <ChartSeries DataSource="@ChartDataBgOld" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="red" Type="ChartSeriesType.Spline" />
     </ChartSeriesCollection>
 </SfChart>
 
@@ -37,10 +57,10 @@
     <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Time" />
 
     <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
-    <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical"></ChartCrosshairSettings>
+    <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical" />
 
     <ChartSeriesCollection>
-        <ChartSeries DataSource="@ChartDataBolus" XName="X" YName="Y" TooltipMappingName="Tooltip" ColumnWidth="1" Type="ChartSeriesType.Column" />
+        <ChartSeries DataSource="@ChartDataBolus" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="darkblue" ColumnWidth="1" Type="ChartSeriesType.Column" />
     </ChartSeriesCollection>
 </SfChart>
 
@@ -50,10 +70,10 @@
     <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Time" />
 
     <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
-    <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical"></ChartCrosshairSettings>
+    <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical" />
 
     <ChartSeriesCollection>
-        <ChartSeries DataSource="@ChartDataCarbs" XName="X" YName="Y" TooltipMappingName="Tooltip" ColumnWidth="1" Type="ChartSeriesType.Column" />
+        <ChartSeries DataSource="@ChartDataCarbs" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="darkblue" ColumnWidth="1" Type="ChartSeriesType.Column" />
     </ChartSeriesCollection>
 </SfChart>
 
@@ -132,57 +152,123 @@
     </MudItem>
 </MudGrid>
 
+<SfChart Width="100%" Height="70%" Title="GRI values by months">
+    <ChartPrimaryYAxis Title="GRI value" />
+    <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Months" />
+
+    <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical" />
+    <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
+
+    <ChartSeriesCollection>
+        <ChartSeries DataSource="@ChartDataGriHistory" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="darkblue" Type="ChartSeriesType.Line" />
+    </ChartSeriesCollection>
+</SfChart>
+
 @code {
     public SfChart ChartBg = null!;
     public SfChart ChartBolus = null!;
     public SfChart ChartCarbs = null!;
     private bool _isTouch;
+    private string? _userId;
+    private int _daysCount = 3;
     private bool _isTapHold = false;
     private bool _isMouseMoveUpDetected;
 
     public int Gri { get; set; }
+    public bool IsLoading { get; set; }
     public string? ZoneText { get; set; }
     public double HypoPercent { get; set; }
+    public string? LoadingPart { get; set; }
     public double HyperPercent { get; set; }
+    public DateTime EndDateTime { get; set; }
+    public DateTime StartDateTime { get; set; }
     public List<ChartTimeData> ChartDataBg = [];
+    public List<ChartTimeData> ChartDataBgOld = [];
     public List<ChartPoint> GriResultValue = [new()];
     public List<GriRangeValue> GriRangeValues = [];
     public List<ChartTimeData> ChartDataBolus = [];
     public List<ChartTimeData> ChartDataCarbs = [];
     public List<Statistics> TimeInRangeDetails = [];
+    public List<ChartTimeData> ChartDataGriHistory = [];
     public List<StatisticsBar> TimeInRangeDetailsBar = [new()];
 
     protected async override Task OnInitializedAsync()
     {
-        var userId = await UserProvider.GetCurrentUserId();
-        if (string.IsNullOrEmpty(userId))
+        EndDateTime = DateTime.UtcNow;
+        EndDateTime = EndDateTime.AddHours(-EndDateTime.Hour).AddMinutes(-EndDateTime.Minute).AddSeconds(-EndDateTime.Second).AddMilliseconds(-EndDateTime.Millisecond).AddMicroseconds(-EndDateTime.Microsecond);
+        EndDateTime = EndDateTime.AddDays(1).AddSeconds(-1);
+        StartDateTime = EndDateTime.AddDays(-_daysCount);
+
+        _userId = await UserProvider.GetCurrentUserId();
+        if (string.IsNullOrEmpty(_userId))
             return;
+
+        await LoadData();
+        await LoadGriHistory();
+    }
+
+    private async Task LoadData()
+    {
+        IsLoading = true;
+        LoadingPart = "Bg values for current interval";
+        await InvokeAsync(() => StateHasChanged());
 
         using var connection = await _factory.CreateDbContextAsync();
-        var bgElements = await connection.BgValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).OrderBy(x => x.Time).ToListAsync();
+        var bgElements = await connection.BgValues.OrderBy(x => x.Time).Where(x => x.UserId == _userId && x.Time > StartDateTime && x.Time < EndDateTime).ToListAsync();
         if (bgElements?.Any() is not true)
+        {
+            IsLoading = false;
             return;
+        }
 
-        HandleBgValuesChartData(bgElements);
+        LoadingPart = "Bg values for previous time interval";
+        await InvokeAsync(() => StateHasChanged());
+
+        var startDateTimeOld = StartDateTime.AddDays(-_daysCount);
+        var bgElementsOld = await connection.BgValues.OrderBy(x => x.Time).Where(x => x.UserId == _userId && x.Time > startDateTimeOld && x.Time < StartDateTime).ToListAsync();
+        if (bgElementsOld?.Any() is not true)
+        {
+            IsLoading = false;
+            return;
+        }
+
+        HandleBgValuesChartData(bgElements, bgElementsOld);
         CalculateGri(bgElements);
 
         var firstBgValue = bgElements[0];
         var lastBgValue = bgElements[^1];
 
-        var bolusElements = await connection.BolusValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).OrderBy(x => x.Time).ToListAsync();
+        LoadingPart = "Bolus values for previous time interval";
+        await InvokeAsync(() => StateHasChanged());
+
+        var bolusElements = await connection.BolusValues.OrderBy(x => x.Time).Where(x => x.UserId == _userId && x.Time > StartDateTime && x.Time < EndDateTime).ToListAsync();
         var filteredBolus = bolusElements.Where(x => x.Time >= firstBgValue.Time && x.Time <= lastBgValue.Time);
         HandleBolusValuesChartData(filteredBolus, bgElements, firstBgValue, lastBgValue);
 
-        var carbsElements = await connection.CarbsValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).OrderBy(x => x.Time).ToListAsync();
+        LoadingPart = "Carbs values for previous time interval";
+        await InvokeAsync(() => StateHasChanged());
+
+        var carbsElements = await connection.CarbsValues.OrderBy(x => x.Time).Where(x => x.UserId == _userId && x.Time > StartDateTime && x.Time < EndDateTime).ToListAsync();
         var filteredCarbs = carbsElements.Where(x => x.Time >= firstBgValue.Time && x.Time <= lastBgValue.Time);
         HandleCarbsValuesChartData(filteredCarbs, bgElements, firstBgValue, lastBgValue);
+
+        IsLoading = false;
     }
 
-    private void HandleBgValuesChartData(IEnumerable<BgValue> elements)
+    private void HandleBgValuesChartData(IEnumerable<BgValue> elements, IEnumerable<BgValue> elementsOld)
     {
         ChartDataBg = elements.Select(x => new ChartTimeData()
         {
             X = x.Time,
+            DateTimeTooltip = x.Time,
+            Y = x.Value,
+            Unit = "mmol/l",
+        }).ToList();
+
+        ChartDataBgOld = elementsOld.Select(x => new ChartTimeData()
+        {
+            X = x.Time.AddDays(3),
+            DateTimeTooltip = x.Time,
             Y = x.Value,
             Unit = "mmol/l",
         }).ToList();
@@ -379,6 +465,72 @@
         ChartDataCarbs = convertedValues.OrderBy(x => x.X).ToList();
     }
 
+    private async Task LoadGriHistory()
+    {
+        List<List<BgValue>> values = [];
+        var dateTime = DateTime.UtcNow;
+        using var connection = await _factory.CreateDbContextAsync();
+
+        IsLoading = true;
+        LoadingPart = "history GRI values";
+        await InvokeAsync(() => StateHasChanged());
+
+        for (int i = 0; i < 12; i++)
+        {
+            var startDateTime = dateTime.AddMonths(-1);
+            var temp = await connection.BgValues.OrderBy(x => x.Time).Where(x => x.UserId == _userId && x.Time > startDateTime && x.Time < dateTime).ToListAsync();
+
+            AddHistoryGriChartValue(temp);
+            dateTime.AddMonths(-1);
+        }
+
+        IsLoading = false;
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    private void AddHistoryGriChartValue(IEnumerable<BgValue> elements)
+    {
+        if (!elements.Any())
+            return;
+
+        double count = (double)elements.Count();
+        double veryLow, low, high, veryHigh;
+        veryLow = elements.Where(x => x.Value < 3.0).Count() / count * 100;
+        low = elements.Where(x => 3.0 < x.Value && x.Value < 3.9).Count() / count * 100;
+        high = elements.Where(x => 10.0 < x.Value && x.Value < 13.9).Count() / count * 100;
+        veryHigh = elements.Where(x => 13.9 < x.Value).Count() / count * 100;
+
+        var hypoPercent = veryLow + (0.8 * low);
+        var hyperPercent = veryHigh + (0.5 * high);
+        var gri = (int)((3.0 * hypoPercent) + (1.6 * hyperPercent));
+
+        ChartDataGriHistory.Add(new()
+        {
+            X = elements.First().Time,
+            DateTimeTooltip = elements.First().Time,
+            Y = gri,
+        });
+    }
+
+    private async Task MoveBack()
+    {
+        EndDateTime = EndDateTime.AddDays(-_daysCount);
+        StartDateTime = EndDateTime.AddDays(-_daysCount);
+
+        await LoadData();
+    }
+
+    private async Task MoveNext()
+    {
+        if (EndDateTime > DateTime.Now)
+            return;
+
+        EndDateTime = EndDateTime.AddDays(_daysCount);
+        StartDateTime = EndDateTime.AddDays(_daysCount);
+
+        await LoadData();
+    }
+
     public void ChartMouseDown(ChartMouseEventArgs changeEventArgs)
     {
         _isMouseMoveUpDetected = false;
@@ -387,56 +539,56 @@
 
     public void OnMouseEventChartBg(ChartMouseEventArgs args)
     {
-        ChartBolus.ShowTooltip(args.MouseX, args.MouseY, false);
-        ChartCarbs.ShowTooltip(args.MouseX, args.MouseY, false);
+        ChartBolus!.ShowTooltip(args.MouseX, args.MouseY, false);
+        ChartCarbs!.ShowTooltip(args.MouseX, args.MouseY, false);
 
-        ChartBolus.ShowCrosshair(args.MouseX, args.MouseY);
-        ChartCarbs.ShowCrosshair(args.MouseX, args.MouseY);
+        ChartBolus!.ShowCrosshair(args.MouseX, args.MouseY);
+        ChartCarbs!.ShowCrosshair(args.MouseX, args.MouseY);
     }
 
     public void OnMouseEventChartBolus(ChartMouseEventArgs args)
     {
-        ChartBg.ShowTooltip(args.MouseX, args.MouseY, false);
-        ChartCarbs.ShowTooltip(args.MouseX, args.MouseY, false);
+        ChartBg!.ShowTooltip(args.MouseX, args.MouseY, false);
+        ChartCarbs!.ShowTooltip(args.MouseX, args.MouseY, false);
 
-        ChartBg.ShowCrosshair(args.MouseX, args.MouseY);
-        ChartCarbs.ShowCrosshair(args.MouseX, args.MouseY);
+        ChartBg!.ShowCrosshair(args.MouseX, args.MouseY);
+        ChartCarbs!.ShowCrosshair(args.MouseX, args.MouseY);
     }
 
     public void OnMouseEventChartCarbs(ChartMouseEventArgs args)
     {
-        ChartBg.ShowTooltip(args.MouseX, args.MouseY, false);
-        ChartBolus.ShowTooltip(args.MouseX, args.MouseY, false);
+        ChartBg!.ShowTooltip(args.MouseX, args.MouseY, false);
+        ChartBolus!.ShowTooltip(args.MouseX, args.MouseY, false);
 
-        ChartBg.ShowCrosshair(args.MouseX, args.MouseY);
-        ChartBolus.ShowCrosshair(args.MouseX, args.MouseY);
+        ChartBg!.ShowCrosshair(args.MouseX, args.MouseY);
+        ChartBolus!.ShowCrosshair(args.MouseX, args.MouseY);
     }
 
     public void OnMouseLeaveChartBg()
     {
-        ChartBolus.HideTooltip();
-        ChartCarbs.HideTooltip();
+        ChartBolus!.HideTooltip();
+        ChartCarbs!.HideTooltip();
 
-        ChartBolus.HideCrosshair();
-        ChartCarbs.HideCrosshair();
+        ChartBolus!.HideCrosshair();
+        ChartCarbs!.HideCrosshair();
     }
 
     public void OnMouseLeaveChartBolus()
     {
-        ChartBg.HideTooltip();
-        ChartCarbs.HideTooltip();
+        ChartBg!.HideTooltip();
+        ChartCarbs!.HideTooltip();
 
-        ChartBg.HideCrosshair();
-        ChartCarbs.HideCrosshair();
+        ChartBg!.HideCrosshair();
+        ChartCarbs!.HideCrosshair();
     }
 
     public void OnMouseLeaveChartCarbs()
     {
-        ChartBg.HideTooltip();
-        ChartBolus.HideTooltip();
+        ChartBg!.HideTooltip();
+        ChartBolus!.HideTooltip();
 
-        ChartBg.HideCrosshair();
-        ChartBolus.HideCrosshair();
+        ChartBg!.HideCrosshair();
+        ChartBolus!.HideCrosshair();
     }
 
     public void OnMouseLeaveChartBg(ChartMouseEventArgs args)
@@ -445,11 +597,11 @@
         _isTouch = false;
         _isMouseMoveUpDetected = true;
 
-        ChartBolus.HideTooltip();
-        ChartCarbs.HideTooltip();
+        ChartBolus!.HideTooltip();
+        ChartCarbs!.HideTooltip();
 
-        ChartBolus.HideCrosshair();
-        ChartCarbs.HideCrosshair();
+        ChartBolus!.HideCrosshair();
+        ChartCarbs!.HideCrosshair();
     }
 
     public void OnMouseLeaveChartBolus(ChartMouseEventArgs args)
@@ -458,11 +610,11 @@
         _isTouch = false;
         _isMouseMoveUpDetected = true;
 
-        ChartBg.HideTooltip();
-        ChartCarbs.HideTooltip();
+        ChartBg!.HideTooltip();
+        ChartCarbs!.HideTooltip();
 
-        ChartBg.HideCrosshair();
-        ChartCarbs.HideCrosshair();
+        ChartBg!.HideCrosshair();
+        ChartCarbs!.HideCrosshair();
     }
 
     public void OnMouseLeaveChartCarbs(ChartMouseEventArgs args)
@@ -471,19 +623,20 @@
         _isTouch = false;
         _isMouseMoveUpDetected = true;
 
-        ChartBg.HideTooltip();
-        ChartBolus.HideTooltip();
+        ChartBg!.HideTooltip();
+        ChartBolus!.HideTooltip();
 
-        ChartBg.HideCrosshair();
-        ChartBolus.HideCrosshair();
+        ChartBg!.HideCrosshair();
+        ChartBolus!.HideCrosshair();
     }
 
     public class ChartTimeData
     {
         public DateTime X { get; set; }
+        public DateTime DateTimeTooltip { get; set; }
         public double Y { get; set; }
         public string? Unit { get; set; }
-        public string? Tooltip => $"{X:g} - {Y:0.00} {Unit}";
+        public string? Tooltip => $"{DateTimeTooltip:g} - {Y:0.00} {Unit}";
     }
 
     public class ChartPoint
