@@ -3,8 +3,8 @@
 @using DataLayer
 @using DataLayer.Entities
 @using Microsoft.EntityFrameworkCore
-@using Syncfusion.Blazor.Charts
 @using Syncfusion.Blazor
+@using ValueType = Syncfusion.Blazor.Charts.ValueType
 
 @inject IDbContextFactory<ApplicationDbContext> _factory
 
@@ -15,7 +15,7 @@
 <MudText Typo="Typo.body1" Class="mb-4">Current count: @currentCount</MudText>
 
 <SfChart>
-    <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime" />
+    <ChartPrimaryXAxis ValueType="ValueType.DateTime" />
 
     <ChartSeriesCollection>
         <ChartSeries DataSource="@ChartData" XName="X" YName="Y" Type="ChartSeriesType.Spline" />
@@ -23,7 +23,7 @@
 </SfChart>
 
 <SfChart>
-    <ChartPrimaryXAxis ValueType="Syncfusion.Blazor.Charts.ValueType.Double" />
+    <ChartPrimaryXAxis ValueType="ValueType.Double" />
 
     <ChartSeriesCollection>
         <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y1" Fill="green" Type="ChartSeriesType.StackingArea" />
