@@ -19,6 +19,7 @@ public class TotalDataSyncService(
     public async Task SyncAllData(DateTime startDate)
     {
         var userId = await userProvider.GetCurrentUserId();
+        await ClearData(userId);
 
         using var dbcontext = await contextFactory.CreateDbContextAsync();
 
@@ -81,5 +82,15 @@ public class TotalDataSyncService(
 
             startDate = endDate;
         } while (shouldContinue);
+    }
+
+    public async Task ClearData(string? userId)
+    {
+        using var dbContext = await contextFactory.CreateDbContextAsync();
+
+        await dbContext.BgValues.Where(x => x.UserId == userId).ExecuteDeleteAsync();
+        await dbContext.BolusValues.Where(x => x.UserId == userId).ExecuteDeleteAsync();
+        await dbContext.CarbsValues.Where(x => x.UserId == userId).ExecuteDeleteAsync();
+        await dbContext.Profiles.Where(x => x.UserId == userId).ExecuteDeleteAsync();
     }
 }

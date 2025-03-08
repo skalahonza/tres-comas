@@ -47,6 +47,7 @@
 
 <div Class="pa-4" />
 <h2>Data sync</h2>
+<MudDatePicker Label="Since data since" @bind-Date="@_syncStart" />
 <MudButton Class="ml-auto mt-5" OnClick="Sync" Variant="Variant.Filled" Color="Color.Primary" Disabled=@_syncInProgress>
     @if (_syncInProgress)
     {
@@ -58,12 +59,14 @@
         <MudText>Sync</MudText>
     }
 </MudButton>
+<MudAlert Class="mt-4" Severity="Severity.Error">This action will clear all of you data!</MudAlert>
 
 
 @code {
     private readonly Input _input = new();
     private readonly DexcomInput _dexcomInput = new();
     private bool _syncInProgress = false;
+    private DateTime? _syncStart = DateTime.Today.AddYears(-1);
 
     protected override async Task OnInitializedAsync()
     {
@@ -140,7 +143,7 @@
     public async Task Sync()
     {
         _syncInProgress = true;
-        await SyncService.SyncAllData(DateTime.Now.AddYears(-1));
+        await SyncService.SyncAllData(_syncStart ?? DateTime.Now.AddYears(-1));
         _syncInProgress = false;
     }
 

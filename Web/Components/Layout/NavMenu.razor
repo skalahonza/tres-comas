@@ -9,7 +9,7 @@
     <AuthorizeView>
         <Authorized>
             <MudNavLink Href="connections" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Link">Connections</MudNavLink>
-            <MudNavLink Href="Account/Manage" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person">@context.User.Identity?.Name</MudNavLink>
+            <MudNavLink Href="Account/Manage" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Person" Disabled=true>@GetUserName(@context.User.Identity?.Name)</MudNavLink>
             <form action="Account/Logout" method="post">
                 <AntiforgeryToken/>
                 <input type="hidden" name="ReturnUrl" value="@currentUrl"/>
@@ -44,6 +44,17 @@
     public void Dispose()
     {
         NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    private string GetUserName(string? userName)
+    {
+        if (userName is null) return "";
+
+        if (!userName.Contains("@")) return userName;
+
+        var split = userName.Split("@");
+
+        return split[0];
     }
 }
 
