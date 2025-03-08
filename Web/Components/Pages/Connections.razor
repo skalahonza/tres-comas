@@ -3,6 +3,8 @@
 @using DataLayer.Entities
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Options
+@using TresComas.Configurations
 @using TresComas.Services
 
 
@@ -11,6 +13,8 @@
 @inject UserProvider UserProvider
 @inject IDbContextFactory<ApplicationDbContext> DbContextFactory
 @inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+@inject IOptions<DexcomConfig> DexcomConfig
 
 <h1>Connections</h1>
 <h2>Tidepool</h2>
@@ -25,10 +29,24 @@
     </MudForm>
 </MudPaper>
 
-<MudButton Class="ml-auto mt-5" OnClick="Save" Variant="Variant.Filled" Color="Color.Primary">Save</MudButton>
+<MudButton Class="ml-auto mt-5" OnClick="Save" Variant="Variant.Filled" Color="Color.Primary">Save</MudButton>  
+
+<div Class="pa-4"/>
+
+<h2>Dexcom</h2>
+<MudPaper Class="pa-4">
+    <MudForm>
+        <MudSwitch Color="Color.Primary" Class="ml-auto" Label="@(_dexcomInput.Enabled ? "Enabled" : "Disabled")" @bind-Value="@_dexcomInput.Enabled" />
+        @if (_dexcomInput.Enabled)
+        {
+            <MudButton Class="ml-auto mt-5" OnClick="DexcomLogin" Variant="Variant.Filled" Color="Color.Primary" Disabled=@_dexcomInput.IsConnected>Login</MudButton>
+        }
+    </MudForm>
+</MudPaper>
 
 @code {
     private readonly Input _input = new();
+    private readonly DexcomInput _dexcomInput = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -38,7 +56,7 @@
         {
             return;
         }
-        
+
         await using var dbContext = await DbContextFactory.CreateDbContextAsync();
         var settings = await dbContext.TidepoolUserSettings.FirstOrDefaultAsync(x => x.UserId == userId);
         if (settings is not null)
@@ -48,6 +66,18 @@
         }
 
         _input.TidepoolEnabled = !string.IsNullOrEmpty(_input.TidepoolUsername);
+
+        var dexcomSettings = await dbContext.DexcomUserSettings.FirstOrDefaultAsync(x => x.UserId == userId);
+        if (dexcomSettings is not null)
+        {
+            _dexcomInput.Enabled = true;
+            _dexcomInput.IsConnected = true;
+        }
+        else
+        {
+            _dexcomInput.Enabled = false;
+            _dexcomInput.IsConnected = false;
+        }
     }
 
     public async Task Save()
@@ -57,7 +87,7 @@
         {
             return;
         }
-        
+
         await using var dbContext = await DbContextFactory.CreateDbContextAsync();
         var settings = await dbContext.TidepoolUserSettings.FirstOrDefaultAsync(x => x.UserId == userId);
         if (settings is null)
@@ -80,10 +110,26 @@
         Snackbar.Add("Settings saved", Severity.Success);
     }
 
+    public void DexcomLogin()
+    {
+        var authUrl = "https://sandbox-api.dexcom.com/v2/oauth2/login?client_id=##ClientId##&redirect_uri=##Callback##&response_type=code&scope=offline_access";
+        authUrl = authUrl
+            .Replace("##ClientId##", DexcomConfig.Value.ClientId)
+            .Replace("##Callback##", $"{DexcomConfig.Value.CallbackBaseUrl}/dexcom");
+
+        NavigationManager.NavigateTo(authUrl);
+    }
+
     private sealed record Input
     {
         public bool TidepoolEnabled { get; set; }
         public string TidepoolUsername { get; set; } = "";
         public string TidepoolPassword { get; set; } = "";
+    }
+
+    private sealed record DexcomInput
+    {
+        public bool Enabled { get; set; }
+        public bool IsConnected { get; set; }
     }
 }

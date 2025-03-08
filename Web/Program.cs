@@ -13,6 +13,7 @@ using Tidepool.Extensions;
 
 using TresComas.Components;
 using TresComas.Components.Account;
+using TresComas.Configurations;
 using TresComas.Invocables;
 using TresComas.Services;
 
@@ -57,6 +58,8 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+
+builder.Services.Configure<DexcomConfig>(configuration.GetSection("Dexcom"));
 
 // Add health checks
 builder.Services.AddHealthChecks();
