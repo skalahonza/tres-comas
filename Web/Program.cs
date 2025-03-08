@@ -46,6 +46,7 @@ builder.Services.AddTransient<TidepoolBgValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolBgValuesSyncService>();
 builder.Services.AddScheduler();
 builder.AddFhir();
+builder.Services.AddScoped<UserProvider>();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()

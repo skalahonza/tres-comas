@@ -1,0 +1,90 @@
+@page "/Connections"
+@using DataLayer
+@using DataLayer.Entities
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.EntityFrameworkCore
+@using TresComas.Services
+
+
+@attribute [Authorize]
+
+@inject UserProvider UserProvider
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
+@inject ISnackbar Snackbar
+
+<h1>Connections</h1>
+<h2>Tidepool</h2>
+<MudPaper Class="pa-4">
+    <MudForm>
+        <MudSwitch Color="Color.Primary" Class="ml-auto" Label="@(_input.TidepoolEnabled ? "Enabled" : "Disabled")" @bind-Value="@_input.TidepoolEnabled" />
+        @if (_input.TidepoolEnabled)
+        {
+            <MudTextField @bind-Value="@_input.TidepoolUsername" T="string" Label="Username"/>
+            <MudTextField @bind-Value="@_input.TidepoolPassword" T="string" Label="Password" InputType="InputType.Password"/>   
+        }
+    </MudForm>
+</MudPaper>
+
+<MudButton Class="ml-auto mt-5" OnClick="Save" Variant="Variant.Filled" Color="Color.Primary">Save</MudButton>
+
+
+@code {
+    private readonly Input _input = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        var userId = await UserProvider.GetCurrentUserId();
+        if (string.IsNullOrEmpty(userId))
+        {
+            return;
+        }
+        
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+        var settings = await dbContext.TidepoolUserSettings.FirstOrDefaultAsync(x => x.UserId == userId);
+        if (settings is not null)
+        {
+            _input.TidepoolUsername = settings.TidepoolUsername;
+            _input.TidepoolPassword = settings.TidepoolPassword;
+        }
+
+        _input.TidepoolEnabled = !string.IsNullOrEmpty(_input.TidepoolUsername);
+    }
+
+    public async Task Save()
+    {
+        var userId = await UserProvider.GetCurrentUserId();
+        if (string.IsNullOrEmpty(userId))
+        {
+            return;
+        }
+        
+        await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+        var settings = await dbContext.TidepoolUserSettings.FirstOrDefaultAsync(x => x.UserId == userId);
+        if (settings is null)
+        {
+            settings = new TidepoolUserSettings { UserId = userId, };
+            dbContext.Add(settings);
+        }
+        if (_input.TidepoolEnabled)
+        {
+            settings.TidepoolUsername = _input.TidepoolUsername;
+            settings.TidepoolPassword = _input.TidepoolPassword;
+        }
+        else
+        {
+            settings.TidepoolUsername = "";
+            settings.TidepoolPassword = "";
+        }
+
+        await dbContext.SaveChangesAsync();
+        Snackbar.Add("Settings saved", Severity.Success);
+    }
+
+    private sealed record Input
+    {
+        public bool TidepoolEnabled { get; set; }
+        public string TidepoolUsername { get; set; } = "";
+        public string TidepoolPassword { get; set; } = "";
+    }
+}
