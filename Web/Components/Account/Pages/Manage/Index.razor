@@ -80,8 +80,8 @@
 
         using var connection = await Factory.CreateDbContextAsync();
         var existingSettings = await connection.TidepoolUserSettings.FirstOrDefaultAsync(x => x.UserId == user.Id);
-        TidepoolInput.Username == existingSettings.TidepoolUsername;
-        TidepoolInput.Password == existingSettings.TidepoolPassword;
+        TidepoolInput.Username = existingSettings.TidepoolUsername;
+        TidepoolInput.Password = existingSettings.TidepoolPassword;
     }
 
     private async Task OnValidSubmitAsync()
@@ -109,6 +109,8 @@
 
         existingSettings.TidepoolUsername = TidepoolInput.Username;
         existingSettings.TidepoolPassword = TidepoolInput.Password;
+
+        await connection.SaveChangesAsync();
     }
 
     private sealed class InputModel
