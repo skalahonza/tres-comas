@@ -69,6 +69,8 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 // Add health checks
 builder.Services.AddHealthChecks();
 
+builder.Services.UseMinimalHttpLogger();
+
 var app = builder.Build();
 
 app.Services.UseScheduler(s =>
