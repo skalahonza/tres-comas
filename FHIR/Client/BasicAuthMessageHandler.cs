@@ -1,7 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 
-namespace FHIR;
+namespace FHIR.Client;
 
 public class BasicAuthMessageHandler(string username, string password) : DelegatingHandler(new HttpClientHandler())
 {

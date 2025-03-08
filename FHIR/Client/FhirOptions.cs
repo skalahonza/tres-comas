@@ -1,4 +1,4 @@
-﻿namespace FHIR;
+﻿namespace FHIR.Client;
 
 public class FhirOptions
 {
