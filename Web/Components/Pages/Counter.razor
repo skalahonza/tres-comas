@@ -2,13 +2,17 @@
 
 @using DataLayer
 @using DataLayer.Entities
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
 @using Syncfusion.Blazor
+@using Syncfusion.Blazor.Charts
 @using TresComas.Services
 @using ValueType = Syncfusion.Blazor.Charts.ValueType
 
 @inject UserProvider UserProvider
 @inject IDbContextFactory<ApplicationDbContext> _factory
+
+@attribute [Authorize]
 
 <PageTitle>Counter</PageTitle>
 
@@ -55,7 +59,7 @@
             return;
 
         using var connection = await _factory.CreateDbContextAsync();
-        _elements = await connection.BgValues.Where(x => x.UserId == userId && x.Time > DateTime.Now.AddDays(-2)).ToListAsync();
+        _elements = await connection.BgValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).ToListAsync();
 
         HandleBgValuesChartData(_elements);
         CalculateGri(_elements);
