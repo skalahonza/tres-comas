@@ -160,7 +160,7 @@
     <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
 
     <ChartSeriesCollection>
-        <ChartSeries DataSource="@ChartDataGriHistory" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="darkblue" Type="ChartSeriesType.Line" />
+        <ChartSeries DataSource="@ChartDataGriHistory" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="darkblue" Type="ChartSeriesType.Spline" />
     </ChartSeriesCollection>
 </SfChart>
 
@@ -467,12 +467,13 @@
 
     private async Task LoadGriHistory()
     {
-        List<List<BgValue>> values = [];
         var dateTime = DateTime.UtcNow;
+        List<List<BgValue>> values = [];
+        List<ChartTimeData> chartData = [];
         using var connection = await _factory.CreateDbContextAsync();
 
         IsLoading = true;
-        LoadingPart = "history GRI values";
+        LoadingPart = "historic GRI values";
         await InvokeAsync(() => StateHasChanged());
 
         for (int i = 0; i < 12; i++)
@@ -480,19 +481,20 @@
             var startDateTime = dateTime.AddMonths(-1);
             var temp = await connection.BgValues.OrderBy(x => x.Time).Where(x => x.UserId == _userId && x.Time > startDateTime && x.Time < dateTime).ToListAsync();
 
-            AddHistoryGriChartValue(temp);
-            dateTime.AddMonths(-1);
+            if (!temp.Any())
+                continue;
+
+            chartData.Add(AddHistoryGriChartValue(temp));
+            dateTime = dateTime.AddMonths(-1);
         }
 
         IsLoading = false;
+        ChartDataGriHistory = chartData;
         await InvokeAsync(() => StateHasChanged());
     }
 
-    private void AddHistoryGriChartValue(IEnumerable<BgValue> elements)
+    private ChartTimeData AddHistoryGriChartValue(IEnumerable<BgValue> elements)
     {
-        if (!elements.Any())
-            return;
-
         double count = (double)elements.Count();
         double veryLow, low, high, veryHigh;
         veryLow = elements.Where(x => x.Value < 3.0).Count() / count * 100;
@@ -504,12 +506,12 @@
         var hyperPercent = veryHigh + (0.5 * high);
         var gri = (int)((3.0 * hypoPercent) + (1.6 * hyperPercent));
 
-        ChartDataGriHistory.Add(new()
+        return new()
         {
             X = elements.First().Time,
-            DateTimeTooltip = elements.First().Time,
+            SpecificTooltip = $"{elements.First().Time.ToString("MMMM yyyy")} - {gri}",
             Y = gri,
-        });
+        };
     }
 
     private async Task MoveBack()
@@ -636,7 +638,8 @@
         public DateTime DateTimeTooltip { get; set; }
         public double Y { get; set; }
         public string? Unit { get; set; }
-        public string? Tooltip => $"{DateTimeTooltip:g} - {Y:0.00} {Unit}";
+        public string? SpecificTooltip { get; set; }
+        public string? Tooltip => string.IsNullOrWhiteSpace(SpecificTooltip) ? $"{DateTimeTooltip:g} - {Y:0.00} {Unit}" : SpecificTooltip;
     }
 
     public class ChartPoint
