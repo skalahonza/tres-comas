@@ -21,9 +21,9 @@ using TresComas.Invocables;
 using TresComas.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-var configuration = builder.Configuration;
 
 // Add MudBlazor services
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(builder.Configuration.GetConnectionString("SyncfusionLicense"));
 builder.Services.AddMudServices();
 
 // Add services to the container.
@@ -42,7 +42,7 @@ builder.Services.AddAuthentication(options =>
     })
     .AddIdentityCookies();
 
-builder.Services.AddDataLayer(configuration);
+builder.Services.AddDataLayer(builder.Configuration);
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddTidepoolClient((settings, configuration) => configuration.GetSection("Tidepool").Bind(settings));
