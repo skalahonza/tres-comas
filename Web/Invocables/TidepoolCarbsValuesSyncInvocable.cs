@@ -23,14 +23,13 @@ public class TidepoolCarbsValuesSyncInvocable(IDbContextFactory<ApplicationDbCon
                 .FirstOrDefaultAsync();
             var syncFrom = lastValue?.Time.AddMinutes(1) ?? DateTime.Now.AddDays(-7);
 
-            var values = await client.GetFoodAsync(syncFrom);
+            var values = await client.GetWizardAsync(syncFrom);
             dbContext.AddRange(values
-                .Where(v => v.Id != null && v.Time != null && v.Nutrition?.Carbohydrate?.Net != null && v.Nutrition.Carbohydrate.Units == "g")
                 .Select(v => new CarbsValue()
                 {
                     ExternalId = v.Id!,
-                    Time = v.Time!.Value,
-                    Value = (decimal)v.Nutrition!.Carbohydrate!.Net!,
+                    Time = v.Time,
+                    Value = v.CarbInput,
                     UserId = user.UserId
                 }));
 

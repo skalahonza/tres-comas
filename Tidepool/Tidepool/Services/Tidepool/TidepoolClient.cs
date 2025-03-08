@@ -66,4 +66,12 @@ public class TidepoolClient : ITidepoolClient
             .WithArgument("type", types.ToLower(CultureInfo.InvariantCulture))
             .AsArray<BgValue>();
     }
+
+    public async Task<IReadOnlyList<WizardValue>> GetWizardAsync(DateTime? start = null, DateTime? end = null)
+        => await _client
+            .GetAsync($"data/{_userId}")
+            .WithArgument("startDate", start?.ToUniversalTime().ToString("o"))
+            .WithArgument("endDate", end?.ToUniversalTime().ToString("o"))
+            .WithArgument("type", nameof(DataType.Wizard).ToCamelCase())
+            .AsArray<WizardValue>();
 }
