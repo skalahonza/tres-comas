@@ -16,10 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Workers\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
     </ItemGroup>
 

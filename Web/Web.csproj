@@ -27,6 +27,7 @@
     <PackageReference Include="Extensions.MudBlazor.StaticInput" Version="3.*" />
     <PackageReference Include="Syncfusion.Blazor.Charts" Version="28.2.9" />
     <PackageReference Include="Syncfusion.Blazor.Sparkline" Version="28.2.9" />
+    <PackageReference Include="MinimalHttpLogger" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>

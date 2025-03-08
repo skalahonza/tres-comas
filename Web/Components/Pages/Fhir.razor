@@ -4,27 +4,54 @@
 @using FHIR
 @using FHIR.Client
 @using FHIR.Extensions
+@using Hl7.Fhir.Serialization
 @using Microsoft.EntityFrameworkCore
 @using Task = System.Threading.Tasks.Task
 
 @inject FhirClientFactory FhirClientFactory
 @inject IDbContextFactory<ApplicationDbContext> ContextFactory
 
-<h3>Fhir</h3>
-<div>Total FHIR Patients: @_totalFhirPatientsCount</div>
-<div>Patient Name: @_patientName</div>
+<h1>Fhir</h1>
+This pages is for debugging and verification that the data are indeed synced to FHIR.
+
+<h2>Patients in FHIR</h2>
+<MudDataGrid Items="@_patients">
+    <Columns>
+        <PropertyColumn Property="x => x.Id" Title="Id" />
+        <PropertyColumn Property="x => x.Name" Title="Name" />
+        <PropertyColumn Property="x => x.Email" Title="Email" />
+        <PropertyColumn Property="x => x.Json" Title="Json" />
+    </Columns>
+</MudDataGrid>
 
 @code {
-    private int _totalFhirPatientsCount = 0;
-    private string _patientName = "";
+    private List<PatientRow> _patients = [];
 
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         await using var context = await ContextFactory.CreateDbContextAsync();
         var fhirIds = await context.Users.Select(x => x.FhirId).Where(x => !string.IsNullOrEmpty(x)).ToHashSetAsync();
-        
         var fhir = FhirClientFactory.Client;
+        
+        foreach (var fhirId in fhirIds)
+        {
+            var patient = await fhir.ReadAsync<Patient>($"Patient/{fhirId}");
+            
+            if (patient is null)
+            {
+                continue;
+            }
+            
+            _patients.Add(new PatientRow
+            {
+                Id = patient.Id,
+                Name = patient.Name.ToFullName(),
+                Email = patient.GetEmail(),
+                Json = await patient.ToJsonAsync()
+            });
+        }
+        
         // Perform a search query with _summary=count to get only the total count
         var searchResult = await fhir.SearchAsync<Patient>(["_summary=count"]);
         
@@ -32,36 +59,13 @@
         {
             return;
         }
-
-        // Extract the total count
-        _totalFhirPatientsCount = searchResult.Total ?? 0;
-        
-        var patient = await fhir.ReadAsync<Patient>("Patient/1");
-        
-        if (patient is null)
-        {
-            return;
-        }
-
-        _patientName = patient.Name.ToFullName();
     }
 
-    private async Task Callback()
+    private sealed record PatientRow
     {
-        await using var context = await ContextFactory.CreateDbContextAsync();
-        var fhirIds = await context.Users.Select(x => x.FhirId).Where(x => !string.IsNullOrEmpty(x)).ToHashSetAsync();
-        
-        var fhir = FhirClientFactory.Client;
-        // Perform a search query with _summary=count to get only the total count
-        var searchResult = await fhir.SearchAsync<Patient>(["_summary=count"]);
-        
-        if (searchResult is null)
-        {
-            return;
-        }
-
-        // Extract the total count
-        var totalFhirPatientsCount = searchResult.Total ?? 0;
+        public required string Id { get; init; }
+        public required string Name { get; init; }
+        public required string Email { get; init; }
+        public required string Json { get; init; }
     }
-
 }
