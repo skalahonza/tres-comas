@@ -2,11 +2,6 @@
 
 public static class UnitsHelper
 {
-    public static double ConvertBg(double value, string unit)
-    {
-        if (unit.Contains("mmol/l", StringComparison.InvariantCulture))
-            return value;
-
-        return value / 18;
-    }
+    public static double ConvertBg(double value, string unit) => 
+        unit.Contains("mmol", StringComparison.OrdinalIgnoreCase) ? value : value / 18;
 }
