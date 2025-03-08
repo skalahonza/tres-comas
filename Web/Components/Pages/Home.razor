@@ -1,59 +1,288 @@
 ﻿@page "/"
+@using DataLayer.Entities
+@using Syncfusion.Blazor.Charts
+@using TresComas.Services
+@using ValueType = Syncfusion.Blazor.Charts.ValueType
+@using static TresComas.Components.Pages.Counter
+
+@inject DashboardDataService DashboardDataService
 
 <PageTitle>Home</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Hello, Tres Comas!</MudText>
-<MudText Class="mb-8">Welcome to your new app, powered by MudBlazor and the .NET 9 Template!</MudText>
+<MudGrid>
+    <MudItem xs="6">
+        <MudText>You are doing great! Your range values are better about 15 %!</MudText>
+    </MudItem>
+    <MudItem xs="6">
+    </MudItem>
 
-<MudAlert Severity="Severity.Normal">
-    You can find documentation and examples on our website here:
-    <MudLink Href="https://mudblazor.com" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        <b>www.mudblazor.com</b>
-    </MudLink>
-</MudAlert>
+    <MudItem xs="6">
+        <MudText Typo="Typo.h5">@DashboardDataService.PreviousStart.ToShortDateString() - @DashboardDataService.PreviousEnd.ToShortDateString()</MudText>
+    </MudItem>
+    <MudItem xs="6">
+        <MudText Typo="Typo.h5">@DashboardDataService.CurrentStart.ToShortDateString() - @DashboardDataService.CurrentEnd.ToShortDateString()</MudText>
+    </MudItem>
 
-<br />
-<MudText Typo="Typo.h5" GutterBottom="true">Interactivity in this Template</MudText>
-<br />
-<MudText Typo="Typo.body2">
-    When you opt for the "Global" Interactivity Location, <br />
-    the render modes are defined in App.razor and consequently apply to all child components.<br />
-    In this case, providers are globally set in the MainLayout.<br />
-    <br />
-    On the other hand, if you choose the "Per page/component" Interactivity Location,<br />
-    it is necessary to include the <br />
-    <br />
-    &lt;MudPopoverProvider /&gt; <br />
-    &lt;MudDialogProvider /&gt; <br />
-    &lt;MudSnackbarProvider /&gt; <br />
-    <br />
-    components on every interactive page.<br />
-    <br />
-    If a render mode is not specified for a page, it defaults to Server-Side Rendering (SSR),<br />
-    similar to this page. While MudBlazor allows pages to be rendered in SSR,<br />
-    please note that interactive features, such as buttons and dropdown menus, will not be functional.
-</MudText>
+    <MudItem xs="4">
+        <SfChart Title="Time in range">
+            <ChartPrimaryYAxis Title="Percent" />
+            <ChartPrimaryXAxis ValueType="ValueType.Category" />
 
-<br />
-<MudText Typo="Typo.h5" GutterBottom="true">What's New in Blazor with the Release of .NET 9</MudText>
-<br />
+            <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
 
-<MudText Typo="Typo.h6" GutterBottom="true">Prerendering</MudText>
-<MudText Typo="Typo.body2" GutterBottom="true">
-    If you're exploring the features of .NET 9 Blazor,<br /> you might be pleasantly surprised to learn that each page is prerendered on the server,<br /> regardless of the selected render mode.<br /><br />
-    This means that you'll need to inject all necessary services on the server,<br /> even when opting for the wasm (WebAssembly) render mode.<br /><br />
-    This prerendering functionality is crucial to ensuring that WebAssembly mode feels fast and responsive,<br /> especially when it comes to initial page load times.<br /><br />
-    For more information on how to detect prerendering and leverage the RenderContext, you can refer to the following link:
-    <MudLink Href="https://github.com/dotnet/aspnetcore/issues/51468#issuecomment-1783568121" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        More details
-    </MudLink>
-</MudText>
+            <ChartSeriesCollection>
+                <ChartSeries DataSource="@Prev.TimeInRangeDetailsBar" XName="X" YName="Y1" TooltipMappingName="Tooltip1"
+                Fill="darkred" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@Prev.TimeInRangeDetailsBar" XName="X" YName="Y2" TooltipMappingName="Tooltip2"
+                Fill="pink" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@Prev.TimeInRangeDetailsBar" XName="X" YName="Y3" TooltipMappingName="Tooltip3"
+                Fill="green" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@Prev.TimeInRangeDetailsBar" XName="X" YName="Y4" TooltipMappingName="Tooltip4"
+                Fill="yellow" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@Prev.TimeInRangeDetailsBar" XName="X" YName="Y5" TooltipMappingName="Tooltip5"
+                Fill="orange" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+            </ChartSeriesCollection>
+        </SfChart>
+    </MudItem>
+    <MudItem xs="2">
+        <MudText Typo="Typo.h1">&nbsp;</MudText>
+        <MudText Typo="Typo.subtitle1">@Prev.TimeInRangeDetailsBar[0].Tooltip5Alt</MudText>
+        <MudText Typo="Typo.subtitle1">@Prev.TimeInRangeDetailsBar[0].Tooltip4Alt</MudText>
+        <MudText Typo="Typo.subtitle1">@Prev.TimeInRangeDetailsBar[0].Tooltip3Alt</MudText>
+        <MudText Typo="Typo.subtitle1">@Prev.TimeInRangeDetailsBar[0].Tooltip2Alt</MudText>
+        <MudText Typo="Typo.subtitle1">@Prev.TimeInRangeDetailsBar[0].Tooltip1Alt</MudText>
+        <MudText Typo="Typo.h1">&nbsp;</MudText>
+    </MudItem>
 
-<br />
-<MudText Typo="Typo.h6" GutterBottom="true">InteractiveAuto</MudText>
-<MudText Typo="Typo.body2">
-    A discussion on how to achieve this can be found here:
-    <MudLink Href="https://github.com/dotnet/aspnetcore/issues/51468#issue-1950424116" Target="_blank" Typo="Typo.body2" Color="Color.Primary">
-        More details
-    </MudLink>
-</MudText>
+    <MudItem xs="4">
+        <SfChart Title="Time in range">
+            <ChartPrimaryYAxis Title="Percent" />
+            <ChartPrimaryXAxis ValueType="ValueType.Category" />
+
+            <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
+
+            <ChartSeriesCollection>
+                <ChartSeries DataSource="@Curr.TimeInRangeDetailsBar" XName="X" YName="Y1" TooltipMappingName="Tooltip1"
+                Fill="darkred" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@Curr.TimeInRangeDetailsBar" XName="X" YName="Y2" TooltipMappingName="Tooltip2"
+                Fill="pink" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@Curr.TimeInRangeDetailsBar" XName="X" YName="Y3" TooltipMappingName="Tooltip3"
+                Fill="green" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@Curr.TimeInRangeDetailsBar" XName="X" YName="Y4" TooltipMappingName="Tooltip4"
+                Fill="yellow" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@Curr.TimeInRangeDetailsBar" XName="X" YName="Y5" TooltipMappingName="Tooltip5"
+                Fill="orange" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+            </ChartSeriesCollection>
+        </SfChart>
+    </MudItem>
+    <MudItem xs="2">
+        <MudText Typo="Typo.h1">&nbsp;</MudText>
+        <MudText Typo="Typo.subtitle1">@Curr.TimeInRangeDetailsBar[0].Tooltip5Alt</MudText>
+        <MudText Typo="Typo.subtitle1">@Curr.TimeInRangeDetailsBar[0].Tooltip4Alt</MudText>
+        <MudText Typo="Typo.subtitle1">@Curr.TimeInRangeDetailsBar[0].Tooltip3Alt</MudText>
+        <MudText Typo="Typo.subtitle1">@Curr.TimeInRangeDetailsBar[0].Tooltip2Alt</MudText>
+        <MudText Typo="Typo.subtitle1">@Curr.TimeInRangeDetailsBar[0].Tooltip1Alt</MudText>
+        <MudText Typo="Typo.h1">&nbsp;</MudText>
+    </MudItem>
+
+    <MudItem md="6">
+        <MudText Typo="Typo.h6">Your GRI value was @Prev.Gri.</MudText>
+        <MudText Typo="Typo.body1">You are were @Prev.ZoneText</MudText>
+        <SfChart Height="400px" Width="400px" Title="GRI">
+            <ChartPrimaryYAxis Title="Hyperglycemia component (%)" />
+            <ChartPrimaryXAxis ValueType="ValueType.Double" Title="Hypoglycemia Component (%)" />
+
+            <ChartSeriesCollection>
+                <ChartSeries DataSource="@Prev.GriRangeValues" XName="X" YName="Y1" Fill="green" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@Prev.GriRangeValues" XName="X" YName="Y2" Fill="lightgreen" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@Prev.GriRangeValues" XName="X" YName="Y3" Fill="yellow" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@Prev.GriRangeValues" XName="X" YName="Y4" Fill="pink" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@Prev.GriRangeValues" XName="X" YName="Y5" Fill="darkred" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@Prev.GriResultValue" XName="X" YName="Y" Fill="black" Type="ChartSeriesType.Bubble" />
+            </ChartSeriesCollection>
+        </SfChart>
+    </MudItem>
+
+    <MudItem md="6">
+        <MudText Typo="Typo.h6">Your GRI value is @Curr.Gri.</MudText>
+        <MudText Typo="Typo.body1">You are in @Curr.ZoneText</MudText>
+        <SfChart Height="400px" Width="400px" Title="GRI">
+            <ChartPrimaryYAxis Title="Hyperglycemia component (%)" />
+            <ChartPrimaryXAxis ValueType="ValueType.Double" Title="Hypoglycemia Component (%)" />
+
+            <ChartSeriesCollection>
+                <ChartSeries DataSource="@Curr.GriRangeValues" XName="X" YName="Y1" Fill="green" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@Curr.GriRangeValues" XName="X" YName="Y2" Fill="lightgreen" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@Curr.GriRangeValues" XName="X" YName="Y3" Fill="yellow" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@Curr.GriRangeValues" XName="X" YName="Y4" Fill="pink" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@Curr.GriRangeValues" XName="X" YName="Y5" Fill="darkred" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@Curr.GriResultValue" XName="X" YName="Y" Fill="black" Type="ChartSeriesType.Bubble" />
+            </ChartSeriesCollection>
+        </SfChart>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private BarValues Prev { get; set; } = new();
+    private BarValues Curr { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        var bgData = await DashboardDataService.GetBgData();
+
+        Prev = CalculateGri(bgData.Prev);
+        Curr = CalculateGri(bgData.Curr);
+    }
+
+    private BarValues CalculateGri(IEnumerable<BgValue> elements)
+    {
+        double count = (double)elements.Count();
+        double veryLow, low, high, veryHigh;
+        veryLow = elements.Where(x => x.Value < 3.0).Count() / count * 100;
+        low = elements.Where(x => 3.0 < x.Value && x.Value < 3.9).Count() / count * 100;
+        high = elements.Where(x => 10.0 < x.Value && x.Value < 13.9).Count() / count * 100;
+        veryHigh = elements.Where(x => 13.9 < x.Value).Count() / count * 100;
+
+        var griValues = HandleGriChartData(veryLow, low, high, veryHigh);
+        var rangeValues = HandleTimeInRangeChartData(veryLow, low, high, veryHigh);
+
+        griValues.TimeInRangeDetailsBar = rangeValues.TimeInRangeDetailsBar;
+        griValues.TimeInRangeDetails = rangeValues.TimeInRangeDetails;
+
+        return griValues;   
+    }
+
+    private BarValues HandleGriChartData(double veryLow, double low, double high, double veryHigh)
+    {
+        var hypoPercent = veryLow + (0.8 * low);
+        var hyperPercent = veryHigh + (0.5 * high);
+        var gri = (int)((3.0 * hypoPercent) + (1.6 * hyperPercent));
+
+        var zoneText = gri switch
+        {
+            <= 20 => "Zone A (0-20) - It is PERFECT result!!!",
+            > 20 and <= 40 => "Zone B (21-40) - You are doing great.",
+            > 40 and <= 60 => "Zone C (41-60) - Not great, not terrible.",
+            > 60 and <= 80 => "Zone D (61-80) - It's time for self improve.",
+            _ => "Zone E (81-100) - You have to work on yourself, please."
+        };
+
+        List<ChartPoint> griResultValue = [new ChartPoint() { X = hypoPercent, Y = hyperPercent }];
+        List<GriRangeValue> griRangeValues = [
+            new GriRangeValue()
+            {
+                X = 0,
+                Y1 = 12.5,
+                Y2 = 12.5,
+                Y3 = 12.5,
+                Y4 = 12.5,
+                Y5 = 12.5,
+            },
+            new GriRangeValue()
+            {
+                X = 6.6,
+                Y1 = 0,
+                Y2 = 12.5,
+                Y3 = 12.5,
+                Y4 = 12.5,
+                Y5 = 12.5,
+            },
+            new GriRangeValue()
+            {
+                X = 13.3,
+                Y1 = 0,
+                Y2 = 0,
+                Y3 = 12.5,
+                Y4 = 12.5,
+                Y5 = 12.5,
+            },
+            new GriRangeValue()
+            {
+                X = 20,
+                Y1 = 0,
+                Y2 = 0,
+                Y3 = 0,
+                Y4 = 12.5,
+                Y5 = 12.5,
+            },
+            new GriRangeValue()
+            {
+                X = 26.6,
+                Y1 = 0,
+                Y2 = 0,
+                Y3 = 0,
+                Y4 = 0,
+                Y5 = 12.5,
+            },
+            new GriRangeValue()
+            {
+                X = 33.3,
+                Y1 = 0,
+                Y2 = 0,
+                Y3 = 0,
+                Y4 = 0,
+                Y5 = 0,
+            }
+        ];
+
+        return new BarValues()
+        {
+            HypoPercent = hypoPercent,
+            HyperPercent = hyperPercent,
+            Gri = gri,
+            ZoneText = zoneText,
+            GriRangeValues = griRangeValues,
+            GriResultValue = griResultValue
+        };
+    }
+
+    private BarValues HandleTimeInRangeChartData(double veryLow, double low, double high, double veryHigh)
+    {
+        var inRange = 100 - veryLow - low - high - veryHigh;
+        List<Statistics> timeInRangeDetails =
+            [
+            new Statistics { Type = "Very low", Percent = veryLow, Fill = "darkred" },
+            new Statistics { Type = "Low", Percent = low, Fill = "pink" },
+            new Statistics { Type = "In range", Percent = inRange, Fill = "green" },
+            new Statistics { Type = "High", Percent = high , Fill = "yellow" },
+            new Statistics { Type = "Very high", Percent = veryHigh, Fill = "orange" },
+    ];
+
+        List<StatisticsBar> timeInRangeDetailsBar =
+            [
+            new StatisticsBar()
+            {
+                Y1 = veryLow,
+                Y2 = low,
+                Y3 = inRange,
+                Y4 = high,
+                Y5 = veryHigh,
+                Type1 = "Very low",
+                Type2 = "Low",
+                Type3 = "In range",
+                Type4 = "High",
+                Type5 = "Very high",
+            }
+        ];
+
+        return new BarValues()
+            {
+                TimeInRangeDetails = timeInRangeDetails,
+                TimeInRangeDetailsBar = timeInRangeDetailsBar
+            };
+    }
+
+    class BarValues
+    {
+        public List<Statistics> TimeInRangeDetails { get; set; } = [];
+        public List<StatisticsBar> TimeInRangeDetailsBar { get; set; } = [new()];
+        public List<ChartPoint> GriResultValue { get; set; } = [];
+        public List<GriRangeValue> GriRangeValues { get; set; } = [];
+        public int Gri { get; set; }
+        public string? ZoneText { get; set; }
+        public double HypoPercent { get; set; }
+        public double HyperPercent { get; set; }
+    }
+}
