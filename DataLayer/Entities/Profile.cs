@@ -21,8 +21,5 @@ public class ProfileSetting : Entity
     public required decimal BasalRate { get; set; }
     public required decimal TargetBg { get; set; }
     public required decimal CarbRation { get; set; }
-    /// <summary>
-    /// In minutes
-    /// </summary>
-    public required int InsulineDuration { get; set; }
+    public required decimal InsulineDuration { get; set; }
 }
