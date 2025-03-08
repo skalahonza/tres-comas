@@ -16,41 +16,130 @@
 
 <PageTitle>Counter</PageTitle>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Counter</MudText>
+<MudText Typo="Typo.h3" GutterBottom="true">Charts</MudText>
 
-<MudText Typo="Typo.body1" Class="mb-4">Current count: @currentCount</MudText>
+<SfChart Width="100%" Height="70%" Title="Bg values in time">
+    <ChartPrimaryYAxis Title="Bg values (mmol/l)" />
+    <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Time" />
 
-<SfChart>
-    <ChartPrimaryXAxis ValueType="ValueType.DateTime" />
+    <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
 
     <ChartSeriesCollection>
-        <ChartSeries DataSource="@ChartData" XName="X" YName="Y" Type="ChartSeriesType.Spline" />
+        <ChartSeries DataSource="@ChartDataBg" XName="X" YName="Y" TooltipMappingName="Tooltip" Type="ChartSeriesType.Spline" />
     </ChartSeriesCollection>
 </SfChart>
 
-<SfChart>
-    <ChartPrimaryXAxis ValueType="ValueType.Double" />
+<SfChart Width="100%" Height="70%" Title="Bolus values in time">
+    <ChartPrimaryYAxis Title="Bolus values (unit)" />
+    <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Time" />
+
+    <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
 
     <ChartSeriesCollection>
-        <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y1" Fill="green" Type="ChartSeriesType.StackingArea" />
-        <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y2" Fill="lightgreen" Type="ChartSeriesType.StackingArea" />
-        <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y3" Fill="yellow" Type="ChartSeriesType.StackingArea" />
-        <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y4" Fill="pink" Type="ChartSeriesType.StackingArea" />
-        <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y5" Fill="red" Type="ChartSeriesType.StackingArea" />
-        <ChartSeries DataSource="@GriResultValue" XName="X" YName="Y" Fill="black" Type="ChartSeriesType.Bubble" />
+        <ChartSeries DataSource="@ChartDataBolus" XName="X" YName="Y" TooltipMappingName="Tooltip" ColumnWidth="1" Type="ChartSeriesType.Column" />
     </ChartSeriesCollection>
 </SfChart>
 
-<MudButton Color="Color.Primary" Variant="Variant.Filled" @onclick="IncrementCount">GRI: @_gri</MudButton>
+<SfChart Width="100%" Height="70%" Title="Carbs values in time">
+    <ChartPrimaryYAxis Title="Carbs values (g)" />
+    <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Time" />
+
+    <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
+
+    <ChartSeriesCollection>
+        <ChartSeries DataSource="@ChartDataCarbs" XName="X" YName="Y" TooltipMappingName="Tooltip" ColumnWidth="1" Type="ChartSeriesType.Column" />
+    </ChartSeriesCollection>
+</SfChart>
+
+<MudGrid>
+    <MudItem md="5">
+        <SfAccumulationChart Title="Time in range histogram - pie">
+
+            <AccumulationChartTooltipSettings Enable="true" Format="${point.tooltip}" />
+
+            <AccumulationChartSeriesCollection>
+                <AccumulationChartSeries DataSource="@TimeInRangeDetails" XName="Type" YName="Percent" PointColorMapping="Fill"
+                                         Name="Type" InnerRadius="40%" TooltipMappingName="Tooltip">
+
+                    <AccumulationDataLabelSettings Visible="true" Name="Type"></AccumulationDataLabelSettings>
+                </AccumulationChartSeries>
+            </AccumulationChartSeriesCollection>
+
+            <AccumulationChartLegendSettings Visible="false"></AccumulationChartLegendSettings>
+        </SfAccumulationChart>
+    </MudItem>
+    <MudItem md="3">
+        <SfChart Title="Time in range histogram - bar">
+            <ChartPrimaryYAxis Title="Percent" />
+            <ChartPrimaryXAxis ValueType="ValueType.Category" />
+
+            <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
+
+            <ChartSeriesCollection>
+                <ChartSeries DataSource="@TimeInRangeDetailsBar" XName="X" YName="Y1" TooltipMappingName="Tooltip1"
+                             Fill="darkred" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@TimeInRangeDetailsBar" XName="X" YName="Y2" TooltipMappingName="Tooltip2"
+                             Fill="pink" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@TimeInRangeDetailsBar" XName="X" YName="Y3" TooltipMappingName="Tooltip3"
+                             Fill="green" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@TimeInRangeDetailsBar" XName="X" YName="Y4" TooltipMappingName="Tooltip4"
+                             Fill="yellow" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+                <ChartSeries DataSource="@TimeInRangeDetailsBar" XName="X" YName="Y5" TooltipMappingName="Tooltip5"
+                             Fill="orange" ColumnWidth="0.2" Type="ChartSeriesType.StackingColumn100" />
+            </ChartSeriesCollection>
+        </SfChart>
+    </MudItem>
+    <MudItem md="4">
+        <MudText Typo="Typo.h1">&nbsp;</MudText>
+        <MudText Typo="Typo.subtitle1">@TimeInRangeDetailsBar[0].Tooltip1Alt</MudText>
+        <MudText Typo="Typo.h5">@TimeInRangeDetailsBar[0].Tooltip2Alt</MudText>
+        <MudText Typo="Typo.h4">@TimeInRangeDetailsBar[0].Tooltip3Alt</MudText>
+        <MudText Typo="Typo.h5">@TimeInRangeDetailsBar[0].Tooltip4Alt</MudText>
+        <MudText Typo="Typo.subtitle1">@TimeInRangeDetailsBar[0].Tooltip5Alt</MudText>
+        <MudText Typo="Typo.h1">&nbsp;</MudText>
+    </MudItem>
+
+    <MudItem md="4">
+        <SfChart Height="400px" Width="400px" Title="GRI">
+            <ChartPrimaryYAxis Title="Hyperglycemia component (%)" />
+            <ChartPrimaryXAxis ValueType="ValueType.Double" Title="Hypoglycemia Component (%)" />
+
+            <ChartSeriesCollection>
+                <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y1" Fill="green" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y2" Fill="lightgreen" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y3" Fill="yellow" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y4" Fill="pink" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@GriRangeValues" XName="X" YName="Y5" Fill="darkred" Type="ChartSeriesType.StackingArea" />
+                <ChartSeries DataSource="@GriResultValue" XName="X" YName="Y" Fill="black" Type="ChartSeriesType.Bubble" />
+            </ChartSeriesCollection>
+        </SfChart>
+    </MudItem>
+    <MudItem md="6">
+        <MudText Typo="Typo.h1">&nbsp;</MudText>
+        <MudText Typo="Typo.h5">&nbsp;</MudText>
+        <MudText Typo="Typo.h4">Your GRI value is @Gri.</MudText>
+        <MudText Typo="Typo.body1">You are in @ZoneText</MudText>
+        <MudText Typo="Typo.body1">Hypoglycemia component - @HypoPercent.ToString("0.00") %</MudText>
+        <MudText Typo="Typo.body1">Hyperglycemia component - @HyperPercent.ToString("0.00") %</MudText>
+        <MudText Typo="Typo.h5">&nbsp;</MudText>
+        <MudText Typo="Typo.h1">&nbsp;</MudText>
+    </MudItem>
+</MudGrid>
 
 @code {
-    private int _gri = 0;
     private int currentCount = 0;
-    private IEnumerable<BgValue> _elements = [];
 
-    public List<ChartTimeData> ChartData = [];
-    public List<ChartPoint> GriResultValue = [];
+    public int Gri { get; set; }
+    public string? ZoneText { get; set; }
+    public double HypoPercent { get; set; }
+    public double HyperPercent { get; set; }
+    public List<ChartTimeData> ChartDataBg = [];
+    public List<ChartPoint> GriResultValue = [new()];
     public List<GriRangeValue> GriRangeValues = [];
+    public List<ChartTimeData> ChartDataBolus = [];
+    public List<ChartTimeData> ChartDataCarbs = [];
+    public List<Statistics> TimeInRangeDetails = [];
+    public List<StatisticsBar> TimeInRangeDetailsBar = [new()];
 
     protected async override Task OnInitializedAsync()
     {
@@ -59,18 +148,25 @@
             return;
 
         using var connection = await _factory.CreateDbContextAsync();
-        _elements = await connection.BgValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).ToListAsync();
+        var bgElements = await connection.BgValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).OrderBy(x => x.Time).ToListAsync();
 
-        HandleBgValuesChartData(_elements);
-        CalculateGri(_elements);
+        HandleBgValuesChartData(bgElements);
+        CalculateGri(bgElements);
+
+        var bolusElements = await connection.BolusValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).OrderBy(x => x.Time).ToListAsync();
+        HandleBolusValuesChartData(bolusElements);
+
+        var carbsElements = await connection.CarbsValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).OrderBy(x => x.Time).ToListAsync();
+        HandleCarbsValuesChartData(carbsElements);
     }
 
     private void HandleBgValuesChartData(IEnumerable<BgValue> elements)
     {
-        ChartData = elements.Select(x => new ChartTimeData()
+        ChartDataBg = elements.Select(x => new ChartTimeData()
         {
             X = x.Time,
             Y = x.Value,
+            Unit = "mmol/l",
         }).ToList();
     }
 
@@ -83,11 +179,26 @@
         high = elements.Where(x => 10.0 < x.Value && x.Value < 13.9).Count() / count * 100;
         veryHigh = elements.Where(x => 13.9 < x.Value).Count() / count * 100;
 
-        var hypo = veryLow + (0.8 * low);
-        var hyper = veryHigh + (0.5 * high);
-        _gri = (int)((3.0 * hypo) + (1.6 * hyper));
+        HandleGriChartData(veryLow, low, high, veryHigh);
+        HandleTimeInRangeChartData(veryLow, low, high, veryHigh);
+    }
 
-        GriResultValue = [new ChartPoint() { X = hypo, Y = hyper }];
+    private void HandleGriChartData(double veryLow, double low, double high, double veryHigh)
+    {
+        HypoPercent = veryLow + (0.8 * low);
+        HyperPercent = veryHigh + (0.5 * high);
+        Gri = (int)((3.0 * HypoPercent) + (1.6 * HyperPercent));
+
+        ZoneText = Gri switch
+        {
+            <= 20 => "Zone A (0-20) - It is PERFECT result!!!",
+            > 20 and <= 40 => "Zone B (21-40) - You are doing great.",
+            > 40 and <= 60 => "Zone C (41-60) - Not great, not terrible.",
+            > 60 and <= 80 => "Zone D (61-80) - It's time for self improve.",
+            _ => "Zone E (81-100) - You have to work on yourself, please."
+        };
+
+        GriResultValue = [new ChartPoint() { X = HypoPercent, Y = HyperPercent }];
         GriRangeValues = [
             new GriRangeValue()
             {
@@ -146,10 +257,62 @@
         ];
     }
 
+    private void HandleTimeInRangeChartData(double veryLow, double low, double high, double veryHigh)
+    {
+        var inRange = 100 - veryLow - low - high - veryHigh;
+        TimeInRangeDetails =
+        [
+            new Statistics { Type = "Very low", Percent = veryLow, Fill = "darkred" },
+            new Statistics { Type = "Low", Percent = low, Fill = "pink" },
+            new Statistics { Type = "In range", Percent = inRange, Fill = "green" },
+            new Statistics { Type = "High", Percent = high , Fill = "yellow" },
+            new Statistics { Type = "Very high", Percent = veryHigh, Fill = "orange" },
+    ];
+
+        TimeInRangeDetailsBar =
+        [
+            new StatisticsBar()
+            {
+                Y1 = veryLow,
+                Y2 = low,
+                Y3 = inRange,
+                Y4 = high,
+                Y5 = veryHigh,
+                Type1 = "Very low",
+                Type2 = "Low",
+                Type3 = "In range",
+                Type4 = "High",
+                Type5 = "Very high",
+            }
+        ];
+    }
+
+    private void HandleBolusValuesChartData(IEnumerable<BolusValue> elements)
+    {
+        ChartDataBolus = elements.Select(x => new ChartTimeData()
+        {
+            X = x.Time,
+            Y = (double)x.Unit,
+            Unit = x.Unit > 1 ? "units" : "unit",
+        }).ToList();
+    }
+
+    private void HandleCarbsValuesChartData(IEnumerable<CarbsValue> elements)
+    {
+        ChartDataCarbs = elements.Select(x => new ChartTimeData()
+        {
+            X = x.Time,
+            Y = (double)x.Value,
+            Unit = "g",
+        }).ToList();
+    }
+
     public class ChartTimeData
     {
         public DateTime X { get; set; }
         public double Y { get; set; }
+        public string? Unit { get; set; }
+        public string? Tooltip => $"{X:g} - {Y:0.00} {Unit}";
     }
 
     public class ChartPoint
@@ -168,8 +331,36 @@
         public double Y5 { get; set; }
     }
 
-    private void IncrementCount()
+    public class StatisticsBar
     {
-        currentCount++;
+        public string X => "Histogram";
+        public double Y1 { get; set; }
+        public double Y2 { get; set; }
+        public double Y3 { get; set; }
+        public double Y4 { get; set; }
+        public double Y5 { get; set; }
+        public string? Type1 { get; set; }
+        public string? Type2 { get; set; }
+        public string? Type3 { get; set; }
+        public string? Type4 { get; set; }
+        public string? Type5 { get; set; }
+        public string Tooltip1 => $"{Type1} - {Y1:0.00} %";
+        public string Tooltip2 => $"{Type2} - {Y2:0.00} %";
+        public string Tooltip3 => $"{Type3} - {Y3:0.00} %";
+        public string Tooltip4 => $"{Type4} - {Y4:0.00} %";
+        public string Tooltip5 => $"{Type5} - {Y5:0.00} %";
+        public string Tooltip1Alt => $"{Y1:0.00} % - {Type1}";
+        public string Tooltip2Alt => $"{Y2:0.00} % - {Type2}";
+        public string Tooltip3Alt => $"{Y3:0.00} % - {Type3}";
+        public string Tooltip4Alt => $"{Y4:0.00} % - {Type4}";
+        public string Tooltip5Alt => $"{Y5:0.00} % - {Type5}";
+    }
+
+    public class Statistics
+    {
+        public string? Type { get; set; }
+        public double Percent { get; set; }
+        public string? Fill { get; set; }
+        public string? Tooltip => $"{Type} - {Percent:#.00} %";
     }
 }
