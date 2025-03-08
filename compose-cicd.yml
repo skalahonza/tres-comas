@@ -1,0 +1,6 @@
+services:
+  web:
+    image: "ghcr.io/skalahonza/tres-comas:latest"
+    build:
+      context: .
+      dockerfile: Web/Dockerfile
