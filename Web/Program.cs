@@ -45,6 +45,7 @@ builder.Services.AddTidepoolClient((settings, configuration) => configuration.Ge
 builder.Services.AddTransient<TidepoolBgValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolBolusValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolCarbsValuesSyncInvocable>();
+builder.Services.AddTransient<TidepoolProfileSyncInvocable>();
 builder.Services.AddTransient<TidepoolBgValuesSyncService>();
 builder.Services.AddScheduler();
 builder.AddFhir();
@@ -70,6 +71,7 @@ if (tidepoolSyncEnabled)
         s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly().RunOnceAtStart();
         s.Schedule<TidepoolBolusValuesSyncInvocable>().Hourly().RunOnceAtStart();
         s.Schedule<TidepoolCarbsValuesSyncInvocable>().Hourly().RunOnceAtStart();
+        s.Schedule<TidepoolProfileSyncInvocable>().Hourly().RunOnceAtStart();
     });
 }
 
