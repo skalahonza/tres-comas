@@ -44,6 +44,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddTidepoolClient((settings, configuration) => configuration.GetSection("Tidepool").Bind(settings));
 builder.Services.AddTransient<TidepoolBgValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolBolusValuesSyncInvocable>();
+builder.Services.AddTransient<TidepoolCarbsValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolBgValuesSyncService>();
 builder.Services.AddScheduler();
 builder.AddFhir();
@@ -66,8 +67,9 @@ if (tidepoolSyncEnabled)
 {
     app.Services.UseScheduler(s =>
     {
-        s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly();
-        s.Schedule<TidepoolBolusValuesSyncInvocable>().Hourly();
+        s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly().RunOnceAtStart();
+        s.Schedule<TidepoolBolusValuesSyncInvocable>().Hourly().RunOnceAtStart();
+        s.Schedule<TidepoolCarbsValuesSyncInvocable>().Hourly().RunOnceAtStart();
     });
 }
 
