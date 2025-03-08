@@ -68,17 +68,13 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-var tidepoolSyncEnabled = builder.Configuration.GetValue<bool>("TidepoolSyncEnabled");
-if (tidepoolSyncEnabled)
+app.Services.UseScheduler(s =>
 {
-    app.Services.UseScheduler(s =>
-    {
-        s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly().RunOnceAtStart();
-        s.Schedule<TidepoolBolusValuesSyncInvocable>().Hourly().RunOnceAtStart();
-        s.Schedule<TidepoolCarbsValuesSyncInvocable>().Hourly().RunOnceAtStart();
-        s.Schedule<TidepoolProfileSyncInvocable>().Hourly().RunOnceAtStart();
-    });
-}
+    s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly().RunOnceAtStart();
+    s.Schedule<TidepoolBolusValuesSyncInvocable>().Hourly().RunOnceAtStart();
+    s.Schedule<TidepoolCarbsValuesSyncInvocable>().Hourly().RunOnceAtStart();
+    s.Schedule<TidepoolProfileSyncInvocable>().Hourly().RunOnceAtStart();
+});
 
 // Add health check endpoint
 app.UseHealthChecks("/health");
