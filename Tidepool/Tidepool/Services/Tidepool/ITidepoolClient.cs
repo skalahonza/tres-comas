@@ -9,4 +9,5 @@ public interface ITidepoolClient
     Task<IReadOnlyList<PhysicalActivity>> GetPhysicalActivityAsync(DateTime? start = null, DateTime? end = null);
     Task<IReadOnlyList<PumpSettings>> GetPumpSettingsAsync(DateTime? start = null, DateTime? end = null);
     Task<IReadOnlyList<BgValue>> GetBgValues(DateTime? start = null, DateTime? end = null);
+    Task<IReadOnlyList<WizardValue>> GetWizardAsync(DateTime? start = null, DateTime? end = null);
 }

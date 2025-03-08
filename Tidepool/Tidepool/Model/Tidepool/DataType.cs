@@ -7,5 +7,6 @@ public enum DataType
     PhysicalActivity,
     PumpSettings,
     Cbg,
-    Smbg
+    Smbg,
+    Wizard
 }
