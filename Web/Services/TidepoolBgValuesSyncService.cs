@@ -4,6 +4,7 @@ using DataLayer.Entities;
 using Microsoft.EntityFrameworkCore;
 
 using Tidepool.Services.Tidepool;
+using TresComas.Helpers;
 
 namespace TresComas.Services;
 
@@ -26,7 +27,7 @@ public class TidepoolBgValuesSyncService(ITidepoolClientFactory tidepoolFactory,
             {
                 ExternalId = x.Id,
                 Time = x.Time!.Value,
-                Value = x.Units == "mmol/l" ? x.Value : x.Value / 18,
+                Value = UnitsHelper.ConvertBg(x.Value, x.Units),
                 UserId = user.UserId,
             }));
 

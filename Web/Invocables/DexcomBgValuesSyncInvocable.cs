@@ -3,6 +3,7 @@ using DataLayer;
 using DataLayer.Entities;
 using Dexcom.Services;
 using Microsoft.EntityFrameworkCore;
+using TresComas.Helpers;
 
 namespace TresComas.Invocables;
 
@@ -30,7 +31,7 @@ public class DexcomBgValuesSyncInvocable(IDbContextFactory<ApplicationDbContext>
                 ExternalId = r.RecordId,
                 Time = r.SystemTime,
                 UserId = user.UserId,
-                Value = r.Value
+                Value = UnitsHelper.ConvertBg(r.Value, r.Unit)
             }));
             await dbContext.SaveChangesAsync();
         }
