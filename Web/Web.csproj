@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataLayer\DataLayer.csproj" />
+    <ProjectReference Include="..\Dexcom\Dexcom.csproj" />
     <ProjectReference Include="..\FHIR\FHIR.csproj" />
     <ProjectReference Include="..\Tidepool\Tidepool\Tidepool.csproj" />
   </ItemGroup>

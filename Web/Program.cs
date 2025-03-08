@@ -2,6 +2,7 @@ using Coravel;
 
 using DataLayer;
 using DataLayer.Entities;
+using Dexcom;
 using FHIR.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -13,7 +14,6 @@ using Tidepool.Extensions;
 
 using TresComas.Components;
 using TresComas.Components.Account;
-using TresComas.Configurations;
 using TresComas.Invocables;
 using TresComas.Services;
 
@@ -43,10 +43,12 @@ builder.Services.AddDataLayer(configuration);
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddTidepoolClient((settings, configuration) => configuration.GetSection("Tidepool").Bind(settings));
+builder.Services.AddDexcom((settings, configuration) => configuration.GetSection("Dexcom").Bind(settings));
 builder.Services.AddTransient<TidepoolBgValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolBolusValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolCarbsValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolProfileSyncInvocable>();
+builder.Services.AddTransient<DexcomBgValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolBgValuesSyncService>();
 builder.Services.AddScheduler();
 builder.AddFhir();
@@ -59,7 +61,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-builder.Services.Configure<DexcomConfig>(configuration.GetSection("Dexcom"));
 
 // Add health checks
 builder.Services.AddHealthChecks();
@@ -75,6 +76,8 @@ if (tidepoolSyncEnabled)
         s.Schedule<TidepoolBolusValuesSyncInvocable>().Hourly().RunOnceAtStart();
         s.Schedule<TidepoolCarbsValuesSyncInvocable>().Hourly().RunOnceAtStart();
         s.Schedule<TidepoolProfileSyncInvocable>().Hourly().RunOnceAtStart();
+
+        s.Schedule<DexcomBgValuesSyncInvocable>().Hourly().RunOnceAtStart();
     });
 }
 

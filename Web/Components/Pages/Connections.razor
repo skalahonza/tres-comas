@@ -1,10 +1,10 @@
 @page "/connections"
 @using DataLayer
 @using DataLayer.Entities
+@using Dexcom.Services
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
-@using TresComas.Configurations
 @using TresComas.Services
 
 
@@ -14,7 +14,7 @@
 @inject IDbContextFactory<ApplicationDbContext> DbContextFactory
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
-@inject IOptions<DexcomConfig> DexcomConfig
+@inject IOptions<DexcomOptions> DexcomConfig
 
 <h1>Connections</h1>
 <h2>Tidepool</h2>
