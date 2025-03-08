@@ -1,4 +1,5 @@
 using DataLayer.Entities;
+using FHIR.Extensions;
 
 namespace FHIR;
 
@@ -11,9 +12,9 @@ using Hl7.Fhir.Model;
 // zjistit od doktora Béma guidelines pro tu vector DB
 // gri dát do observation - a do recommendation dát že to je based on observation
 
-public class Mappings
+public static class Mappings
 {
-    public Observation CreateCarbsValueObservation(CarbsValue carbsValue)
+    public static Observation CreateCarbsValueObservation(CarbsValue carbsValue)
     {
         return new Observation
         {
@@ -30,7 +31,7 @@ public class Mappings
         };
     }
 
-    public Patient CreatePatient(Profile profile)
+    public static Patient CreatePatient(Profile profile)
     {
         return new Patient
         {
@@ -46,8 +47,20 @@ public class Mappings
             }
         };
     }
+    
+    public static Patient CreatePatient(ApplicationUser user)
+    {
+        var patient = new Patient();
+        patient.Update(user);
+        return patient;
+    }
 
-    public Observation CreateProfileSettingObservation(ProfileSetting setting)
+    public static void Update(this Patient patient, ApplicationUser user)
+    {
+        patient.SetEmail(user.Email ?? "");
+    }
+
+    public static Observation CreateProfileSettingObservation(ProfileSetting setting)
     {
         return new Observation
         {
@@ -64,7 +77,7 @@ public class Mappings
         };
     }
 
-    public Communication CreateRecommendationCommunication(string patientId, string recommendation, DateTime issuedDate)
+    public static Communication CreateRecommendationCommunication(string patientId, string recommendation, DateTime issuedDate)
     {
         return new Communication
         {
