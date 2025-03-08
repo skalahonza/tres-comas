@@ -107,13 +107,27 @@ app.MapAdditionalIdentityEndpoints();
 
 
 await MigrateAsync();
+await EnsureDemoUserExists();
 
 app.Run();
+return;
 
 
 async Task MigrateAsync()
 {
     using var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
-    using var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await using var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await context.Database.MigrateAsync();
+}
+
+async Task EnsureDemoUserExists()
+{
+    using var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
+    var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var demoUser = await userManager.FindByIdAsync(ApplicationUser.DemoId);
+    if (demoUser is null)
+    {
+        demoUser = ApplicationUser.CreateDemoUser();
+        var result = await userManager.CreateAsync(demoUser);
+    }
 }
