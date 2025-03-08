@@ -112,12 +112,14 @@ public class TidepoolProfileSyncInvocable(IDbContextFactory<ApplicationDbContext
     {
         var formatedDate = $"{DateTime.Now.Year}-{dateString}";
         var format = "yyyy-MMMd";
-        var dateTime = DateTime.ParseExact(formatedDate, format, CultureInfo.InvariantCulture).ToUniversalTime();
+        var success = DateTime.TryParseExact(formatedDate, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTime);
+        if (!success)
+            return DateTime.Now.ToUniversalTime();
 
         if (dateTime > DateTime.Now)
-            return dateTime.AddYears(-1);
+            return dateTime.AddYears(-1).ToUniversalTime();
 
-        return dateTime;
+        return dateTime.ToUniversalTime();
     }
 
     class ProfileSettingPrototype

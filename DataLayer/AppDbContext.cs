@@ -14,6 +14,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Profile> Profiles => Set<Profile>();
     public DbSet<ProfileSetting> ProfileSettings => Set<ProfileSetting>();
     public DbSet<TidepoolUserSettings> TidepoolUserSettings => Set<TidepoolUserSettings>();
+    public DbSet<DexcomUserSettings> DexcomUserSettings => Set<DexcomUserSettings>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLayer", "DataLayer\Data
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FHIR", "FHIR\FHIR.csproj", "{061F89ED-9D2B-4168-BE3E-2B959FA784C2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dexcom", "Dexcom\Dexcom.csproj", "{FF13A9FE-73B9-46C2-AAB9-A7E7A2289892}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{061F89ED-9D2B-4168-BE3E-2B959FA784C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{061F89ED-9D2B-4168-BE3E-2B959FA784C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{061F89ED-9D2B-4168-BE3E-2B959FA784C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF13A9FE-73B9-46C2-AAB9-A7E7A2289892}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF13A9FE-73B9-46C2-AAB9-A7E7A2289892}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF13A9FE-73B9-46C2-AAB9-A7E7A2289892}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF13A9FE-73B9-46C2-AAB9-A7E7A2289892}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

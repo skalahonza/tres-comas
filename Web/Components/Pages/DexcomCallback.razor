@@ -1,0 +1,50 @@
+﻿@page "/dexcom"
+@using DataLayer
+@using DataLayer.Entities
+@using Microsoft.AspNetCore.Components
+@using System.Web
+@using Microsoft.EntityFrameworkCore
+@using TresComas.Services
+
+@inject NavigationManager NavigationManager
+@inject IDbContextFactory<ApplicationDbContext> DbContextFactory
+@inject UserProvider UserProvider
+
+
+@if(Code != null)
+{
+    <h1>Succesfully logged in</h1>
+}
+else
+{
+    <h1>Something went wrong. Please try again later :(</h1>
+}
+
+
+@code {
+    public string? Code { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var queryParams = HttpUtility.ParseQueryString(uri.Query);
+        Code = queryParams.Get("code");
+        var userId = await UserProvider.GetCurrentUserId();
+
+        if (Code is not null && userId is not null)
+        {
+            DexcomUserSettings settings = new()
+            {
+                UserId = userId,
+                AuthCode = Code
+            };
+
+            await using var dbContext = await DbContextFactory.CreateDbContextAsync();
+            dbContext.DexcomUserSettings.Add(settings);
+            await dbContext.SaveChangesAsync();
+        }
+    }
+}
