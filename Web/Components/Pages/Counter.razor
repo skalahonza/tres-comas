@@ -4,8 +4,10 @@
 @using DataLayer.Entities
 @using Microsoft.EntityFrameworkCore
 @using Syncfusion.Blazor
+@using TresComas.Services
 @using ValueType = Syncfusion.Blazor.Charts.ValueType
 
+@inject UserProvider UserProvider
 @inject IDbContextFactory<ApplicationDbContext> _factory
 
 <PageTitle>Counter</PageTitle>
@@ -48,9 +50,12 @@
 
     protected async override Task OnInitializedAsync()
     {
-        var user = new ApplicationUser();
+        var userId = await UserProvider.GetCurrentUserId();
+        if (string.IsNullOrEmpty(userId))
+            return;
+
         using var connection = await _factory.CreateDbContextAsync();
-        _elements = await connection.BgValues.Where(x => x.UserId == user.Id && x.Time > DateTime.Now.AddDays(-2)).ToListAsync();
+        _elements = await connection.BgValues.Where(x => x.UserId == userId && x.Time > DateTime.Now.AddDays(-2)).ToListAsync();
 
         HandleBgValuesChartData(_elements);
         CalculateGri(_elements);
