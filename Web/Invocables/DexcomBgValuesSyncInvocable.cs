@@ -1,13 +1,12 @@
 ﻿using Coravel.Invocable;
 using DataLayer;
-using DataLayer.Entities;
 using Dexcom.Services;
 using Microsoft.EntityFrameworkCore;
-using TresComas.Helpers;
+using TresComas.Services;
 
 namespace TresComas.Invocables;
 
-public class DexcomBgValuesSyncInvocable(IDbContextFactory<ApplicationDbContext> contextFactory, IDexcomClientFactory dexcomClientFactory) : IInvocable
+public class DexcomBgValuesSyncInvocable(IDbContextFactory<ApplicationDbContext> contextFactory, IDexcomClientFactory dexcomClientFactory, DexcomCoreSyncService syncService) : IInvocable
 {
     public async Task Invoke()
     {
@@ -26,14 +25,8 @@ public class DexcomBgValuesSyncInvocable(IDbContextFactory<ApplicationDbContext>
             var syncTo = DateTime.Now;
 
             var data = await client.GetEgvs(syncFrom, syncTo);
-            dbContext.BgValues.AddRange(data.Records.Select(r => new BgValue()
-            {
-                ExternalId = r.RecordId,
-                Time = r.SystemTime,
-                UserId = user.UserId,
-                Value = UnitsHelper.ConvertBg(r.Value, r.Unit)
-            }));
-            await dbContext.SaveChangesAsync();
+
+            await syncService.SaveBgValues(data, user.UserId);
         }
     }
 }

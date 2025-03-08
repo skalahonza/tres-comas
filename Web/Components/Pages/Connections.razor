@@ -15,6 +15,7 @@
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
 @inject IOptions<DexcomOptions> DexcomConfig
+@inject TotalDataSyncService SyncService
 
 <h1>Connections</h1>
 <h2>Tidepool</h2>
@@ -44,9 +45,25 @@
     </MudForm>
 </MudPaper>
 
+<div Class="pa-4" />
+<h2>Data sync</h2>
+<MudButton Class="ml-auto mt-5" OnClick="Sync" Variant="Variant.Filled" Color="Color.Primary" Disabled=@_syncInProgress>
+    @if (_syncInProgress)
+    {
+        <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+        <MudText Class="ms-2">Syncing</MudText>
+    }
+    else
+    {
+        <MudText>Sync</MudText>
+    }
+</MudButton>
+
+
 @code {
     private readonly Input _input = new();
     private readonly DexcomInput _dexcomInput = new();
+    private bool _syncInProgress = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,6 +135,13 @@
             .Replace("##Callback##", $"{DexcomConfig.Value.CallbackBaseUrl}/dexcom");
 
         NavigationManager.NavigateTo(authUrl);
+    }
+
+    public async Task Sync()
+    {
+        _syncInProgress = true;
+        await SyncService.SyncAllData(DateTime.Now.AddYears(-1));
+        _syncInProgress = false;
     }
 
     private sealed record Input

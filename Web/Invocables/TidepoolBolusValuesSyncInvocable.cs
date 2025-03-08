@@ -1,12 +1,12 @@
 ﻿using Coravel.Invocable;
 using DataLayer;
-using DataLayer.Entities;
 using Microsoft.EntityFrameworkCore;
 using Tidepool.Services.Tidepool;
+using TresComas.Services;
 
 namespace TresComas.Invocables;
 
-public class TidepoolBolusValuesSyncInvocable(IDbContextFactory<ApplicationDbContext> contextFactory, ITidepoolClientFactory tidepoolFactory) : IInvocable
+public class TidepoolBolusValuesSyncInvocable(IDbContextFactory<ApplicationDbContext> contextFactory, ITidepoolClientFactory tidepoolFactory, TidepoolCoreSyncService syncService) : IInvocable
 {
     public async Task Invoke()
     {
@@ -24,16 +24,7 @@ public class TidepoolBolusValuesSyncInvocable(IDbContextFactory<ApplicationDbCon
             var syncFrom = lastValue?.Time.AddMinutes(1) ?? DateTime.Now.AddDays(-7);
 
             var values = await client.GetBolusAsync(syncFrom);
-            dbContext.BolusValues.AddRange(values
-                .Where(v => v.Id != null && v.Time != null && v.Normal != null)
-                .Select(v => new BolusValue()
-                {
-                    ExternalId = v.Id!,
-                    Time = v.Time!.Value,
-                    Unit = (decimal)v.Normal!.Value,
-                    UserId = user.UserId,
-                }));
-            await dbContext.SaveChangesAsync();
+            await syncService.SaveBolusValues(values, user.UserId);
         }
     }
 }

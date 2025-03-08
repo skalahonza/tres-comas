@@ -57,6 +57,9 @@ builder.Services.AddScheduler();
 builder.Services.AddSyncfusionBlazor();
 builder.AddFhir();
 builder.Services.AddScoped<UserProvider>();
+builder.Services.AddScoped<TidepoolCoreSyncService>();
+builder.Services.AddScoped<DexcomCoreSyncService>();
+builder.Services.AddScoped<TotalDataSyncService>();
 
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -131,11 +134,11 @@ async Task EnsureDemoUserExists()
         demoUser = ApplicationUser.CreateDemoUser();
         await userManager.CreateAsync(demoUser);
     }
-    
+
     // set password
     var token = await userManager.GeneratePasswordResetTokenAsync(demoUser);
     await userManager.ResetPasswordAsync(demoUser, token, ApplicationUser.DemoPassword);
-    
+
     // confirm email
     token = await userManager.GenerateEmailConfirmationTokenAsync(demoUser);
     await userManager.ConfirmEmailAsync(demoUser, token);
