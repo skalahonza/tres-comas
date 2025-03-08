@@ -1,28 +1,67 @@
 @page "/Fhir"
+@using DataLayer
 @using Hl7.Fhir.Model
 @using FHIR
+@using FHIR.Client
+@using FHIR.Extensions
+@using Microsoft.EntityFrameworkCore
 @using Task = System.Threading.Tasks.Task
 
 @inject FhirClientFactory FhirClientFactory
+@inject IDbContextFactory<ApplicationDbContext> ContextFactory
 
 <h3>Fhir</h3>
-<div>@PatientName</div>
-<MudButton OnClick="Callback">Load data</MudButton>
+<div>Total FHIR Patients: @_totalFhirPatientsCount</div>
+<div>Patient Name: @_patientName</div>
 
 @code {
-    public string PatientName { get; set; } = "";
-    
-    private async Task Callback()
+    private int _totalFhirPatientsCount = 0;
+    private string _patientName = "";
+
+    protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+        await using var context = await ContextFactory.CreateDbContextAsync();
+        var fhirIds = await context.Users.Select(x => x.FhirId).Where(x => !string.IsNullOrEmpty(x)).ToHashSetAsync();
+        
         var fhir = FhirClientFactory.Client;
+        // Perform a search query with _summary=count to get only the total count
+        var searchResult = await fhir.SearchAsync<Patient>(["_summary=count"]);
+        
+        if (searchResult is null)
+        {
+            return;
+        }
+
+        // Extract the total count
+        _totalFhirPatientsCount = searchResult.Total ?? 0;
+        
         var patient = await fhir.ReadAsync<Patient>("Patient/1");
         
         if (patient is null)
         {
             return;
         }
+
+        _patientName = patient.Name.ToFullName();
+    }
+
+    private async Task Callback()
+    {
+        await using var context = await ContextFactory.CreateDbContextAsync();
+        var fhirIds = await context.Users.Select(x => x.FhirId).Where(x => !string.IsNullOrEmpty(x)).ToHashSetAsync();
         
-        PatientName = patient.Name[0].Given.First();
+        var fhir = FhirClientFactory.Client;
+        // Perform a search query with _summary=count to get only the total count
+        var searchResult = await fhir.SearchAsync<Patient>(["_summary=count"]);
+        
+        if (searchResult is null)
+        {
+            return;
+        }
+
+        // Extract the total count
+        var totalFhirPatientsCount = searchResult.Total ?? 0;
     }
 
 }
