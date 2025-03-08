@@ -128,6 +128,14 @@ async Task EnsureDemoUserExists()
     if (demoUser is null)
     {
         demoUser = ApplicationUser.CreateDemoUser();
-        var result = await userManager.CreateAsync(demoUser);
+        await userManager.CreateAsync(demoUser);
     }
+    
+    // set password
+    var token = await userManager.GeneratePasswordResetTokenAsync(demoUser);
+    await userManager.ResetPasswordAsync(demoUser, token, ApplicationUser.DemoPassword);
+    
+    // confirm email
+    token = await userManager.GenerateEmailConfirmationTokenAsync(demoUser);
+    await userManager.ConfirmEmailAsync(demoUser, token);
 }
