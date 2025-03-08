@@ -18,33 +18,39 @@
 
 <MudText Typo="Typo.h3" GutterBottom="true">Charts</MudText>
 
-<SfChart Width="100%" Height="70%" Title="Bg values in time">
+<SfChart @ref="ChartBg" Width="100%" Height="70%" Title="Bg values in time">
+    <ChartEvents ChartMouseMove="OnMouseEventChartBg" ChartMouseUp="OnMouseLeaveChartBg" ChartMouseDown="ChartMouseDown" />
     <ChartPrimaryYAxis Title="Bg values (mmol/l)" />
     <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Time" />
 
     <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
+    <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical"></ChartCrosshairSettings>
 
     <ChartSeriesCollection>
         <ChartSeries DataSource="@ChartDataBg" XName="X" YName="Y" TooltipMappingName="Tooltip" Type="ChartSeriesType.Spline" />
     </ChartSeriesCollection>
 </SfChart>
 
-<SfChart Width="100%" Height="70%" Title="Bolus values in time">
+<SfChart @ref="ChartBolus" Width="100%" Height="70%" Title="Bolus values in time">
+    <ChartEvents ChartMouseMove="OnMouseEventChartBolus" ChartMouseUp="OnMouseLeaveChartBolus" ChartMouseDown="ChartMouseDown" />
     <ChartPrimaryYAxis Title="Bolus values (unit)" />
     <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Time" />
 
     <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
+    <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical"></ChartCrosshairSettings>
 
     <ChartSeriesCollection>
         <ChartSeries DataSource="@ChartDataBolus" XName="X" YName="Y" TooltipMappingName="Tooltip" ColumnWidth="1" Type="ChartSeriesType.Column" />
     </ChartSeriesCollection>
 </SfChart>
 
-<SfChart Width="100%" Height="70%" Title="Carbs values in time">
+<SfChart @ref="ChartCarbs" Width="100%" Height="70%" Title="Carbs values in time">
+    <ChartEvents ChartMouseMove="OnMouseEventChartCarbs" ChartMouseUp="OnMouseLeaveChartCarbs" ChartMouseDown="ChartMouseDown" />
     <ChartPrimaryYAxis Title="Carbs values (g)" />
     <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Time" />
 
     <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
+    <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical"></ChartCrosshairSettings>
 
     <ChartSeriesCollection>
         <ChartSeries DataSource="@ChartDataCarbs" XName="X" YName="Y" TooltipMappingName="Tooltip" ColumnWidth="1" Type="ChartSeriesType.Column" />
@@ -91,11 +97,11 @@
     </MudItem>
     <MudItem md="4">
         <MudText Typo="Typo.h1">&nbsp;</MudText>
-        <MudText Typo="Typo.subtitle1">@TimeInRangeDetailsBar[0].Tooltip1Alt</MudText>
-        <MudText Typo="Typo.h5">@TimeInRangeDetailsBar[0].Tooltip2Alt</MudText>
-        <MudText Typo="Typo.h4">@TimeInRangeDetailsBar[0].Tooltip3Alt</MudText>
-        <MudText Typo="Typo.h5">@TimeInRangeDetailsBar[0].Tooltip4Alt</MudText>
         <MudText Typo="Typo.subtitle1">@TimeInRangeDetailsBar[0].Tooltip5Alt</MudText>
+        <MudText Typo="Typo.h5">@TimeInRangeDetailsBar[0].Tooltip4Alt</MudText>
+        <MudText Typo="Typo.h4">@TimeInRangeDetailsBar[0].Tooltip3Alt</MudText>
+        <MudText Typo="Typo.h5">@TimeInRangeDetailsBar[0].Tooltip2Alt</MudText>
+        <MudText Typo="Typo.subtitle1">@TimeInRangeDetailsBar[0].Tooltip1Alt</MudText>
         <MudText Typo="Typo.h1">&nbsp;</MudText>
     </MudItem>
 
@@ -127,7 +133,12 @@
 </MudGrid>
 
 @code {
-    private int currentCount = 0;
+    public SfChart? ChartBg;
+    public SfChart? ChartBolus;
+    public SfChart? ChartCarbs;
+    private bool _isTouch;
+    private bool _isTapHold = false;
+    private bool _isMouseMoveUpDetected;
 
     public int Gri { get; set; }
     public string? ZoneText { get; set; }
@@ -149,15 +160,22 @@
 
         using var connection = await _factory.CreateDbContextAsync();
         var bgElements = await connection.BgValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).OrderBy(x => x.Time).ToListAsync();
+        if (bgElements?.Any() is not true)
+            return;
 
         HandleBgValuesChartData(bgElements);
         CalculateGri(bgElements);
 
+        var firstBgValue = bgElements[0];
+        var lastBgValue = bgElements[^1];
+
         var bolusElements = await connection.BolusValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).OrderBy(x => x.Time).ToListAsync();
-        HandleBolusValuesChartData(bolusElements);
+        var filteredBolus = bolusElements.Where(x => x.Time >= firstBgValue.Time && x.Time <= lastBgValue.Time);
+        HandleBolusValuesChartData(filteredBolus, bgElements, firstBgValue, lastBgValue);
 
         var carbsElements = await connection.CarbsValues.Where(x => x.UserId == userId && x.Time > DateTime.UtcNow.AddDays(-2)).OrderBy(x => x.Time).ToListAsync();
-        HandleCarbsValuesChartData(carbsElements);
+        var filteredCarbs = carbsElements.Where(x => x.Time >= firstBgValue.Time && x.Time <= lastBgValue.Time);
+        HandleCarbsValuesChartData(filteredCarbs, bgElements, firstBgValue, lastBgValue);
     }
 
     private void HandleBgValuesChartData(IEnumerable<BgValue> elements)
@@ -287,24 +305,177 @@
         ];
     }
 
-    private void HandleBolusValuesChartData(IEnumerable<BolusValue> elements)
+    private void HandleBolusValuesChartData(IEnumerable<BolusValue> elements, IEnumerable<BgValue> bgElements, BgValue firstBgValue, BgValue lastBgValue)
     {
-        ChartDataBolus = elements.Select(x => new ChartTimeData()
+        var convertedValues = elements.Select(x => new ChartTimeData()
         {
             X = x.Time,
             Y = (double)x.Unit,
             Unit = x.Unit > 1 ? "units" : "unit",
         }).ToList();
+
+        if (elements.FirstOrDefault()?.Time != firstBgValue.Time)
+            convertedValues.Insert(0, new()
+            {
+                X = firstBgValue.Time,
+                Y = 0.0001,
+                Unit = "Boundary mark",
+            });
+
+        if (elements.LastOrDefault()?.Time != lastBgValue.Time)
+            convertedValues.Insert(0, new()
+            {
+                X = lastBgValue.Time,
+                Y = 0.0001,
+                Unit = "Boundary mark",
+            });
+
+        var missingDateTimes = bgElements.Select(x => x.Time).Where(x => !convertedValues.Select(x => x.X).Contains(x));
+        foreach (var dateTime in missingDateTimes)
+            convertedValues.Add(new()
+            {
+                X = dateTime,
+                Y = 0,
+                Unit = "unit",
+            });
+
+        ChartDataBolus = convertedValues.OrderBy(x => x.X).ToList();
     }
 
-    private void HandleCarbsValuesChartData(IEnumerable<CarbsValue> elements)
+    private void HandleCarbsValuesChartData(IEnumerable<CarbsValue> elements, IEnumerable<BgValue> bgElements, BgValue firstBgValue, BgValue lastBgValue)
     {
-        ChartDataCarbs = elements.Select(x => new ChartTimeData()
+        var convertedValues = elements.Select(x => new ChartTimeData()
         {
             X = x.Time,
             Y = (double)x.Value,
             Unit = "g",
         }).ToList();
+
+        if (elements.FirstOrDefault()?.Time != firstBgValue.Time)
+            convertedValues.Insert(0, new()
+            {
+                X = firstBgValue.Time,
+                Y = 0.0001,
+                Unit = "Boundary mark",
+            });
+
+        if (elements.LastOrDefault()?.Time != lastBgValue.Time)
+            convertedValues.Insert(0, new()
+            {
+                X = lastBgValue.Time,
+                Y = 0.0001,
+                Unit = "Boundary mark",
+            });
+
+        var missingDateTimes = bgElements.Select(x => x.Time).Where(x => !convertedValues.Select(x => x.X).Contains(x));
+        foreach (var dateTime in missingDateTimes)
+            convertedValues.Add(new()
+            {
+                X = dateTime,
+                Y = 0,
+                Unit = "g",
+            });
+
+        ChartDataCarbs = convertedValues.OrderBy(x => x.X).ToList();
+    }
+
+    public void ChartMouseDown(ChartMouseEventArgs changeEventArgs)
+    {
+        _isMouseMoveUpDetected = false;
+        _isTouch = true;
+    }
+
+    public void OnMouseEventChartBg(ChartMouseEventArgs args)
+    {
+        ChartBolus.ShowTooltip(args.MouseX, args.MouseY, false);
+        ChartCarbs.ShowTooltip(args.MouseX, args.MouseY, false);
+
+        ChartBolus.ShowCrosshair(args.MouseX, args.MouseY);
+        ChartCarbs.ShowCrosshair(args.MouseX, args.MouseY);
+    }
+
+    public void OnMouseEventChartBolus(ChartMouseEventArgs args)
+    {
+        ChartBg.ShowTooltip(args.MouseX, args.MouseY, false);
+        ChartCarbs.ShowTooltip(args.MouseX, args.MouseY, false);
+
+        ChartBg.ShowCrosshair(args.MouseX, args.MouseY);
+        ChartCarbs.ShowCrosshair(args.MouseX, args.MouseY);
+    }
+
+    public void OnMouseEventChartCarbs(ChartMouseEventArgs args)
+    {
+        ChartBg.ShowTooltip(args.MouseX, args.MouseY, false);
+        ChartBolus.ShowTooltip(args.MouseX, args.MouseY, false);
+
+        ChartBg.ShowCrosshair(args.MouseX, args.MouseY);
+        ChartBolus.ShowCrosshair(args.MouseX, args.MouseY);
+    }
+
+    public void OnMouseLeaveChartBg()
+    {
+        ChartBolus.HideTooltip();
+        ChartCarbs.HideTooltip();
+
+        ChartBolus.HideCrosshair();
+        ChartCarbs.HideCrosshair();
+    }
+
+    public void OnMouseLeaveChartBolus()
+    {
+        ChartBg.HideTooltip();
+        ChartCarbs.HideTooltip();
+
+        ChartBg.HideCrosshair();
+        ChartCarbs.HideCrosshair();
+    }
+
+    public void OnMouseLeaveChartCarbs()
+    {
+        ChartBg.HideTooltip();
+        ChartBolus.HideTooltip();
+
+        ChartBg.HideCrosshair();
+        ChartBolus.HideCrosshair();
+    }
+
+    public void OnMouseLeaveChartBg(ChartMouseEventArgs args)
+    {
+        _isTapHold = false;
+        _isTouch = false;
+        _isMouseMoveUpDetected = true;
+
+        ChartBolus.HideTooltip();
+        ChartCarbs.HideTooltip();
+
+        ChartBolus.HideCrosshair();
+        ChartCarbs.HideCrosshair();
+    }
+
+    public void OnMouseLeaveChartBolus(ChartMouseEventArgs args)
+    {
+        _isTapHold = false;
+        _isTouch = false;
+        _isMouseMoveUpDetected = true;
+
+        ChartBg.HideTooltip();
+        ChartCarbs.HideTooltip();
+
+        ChartBg.HideCrosshair();
+        ChartCarbs.HideCrosshair();
+    }
+
+    public void OnMouseLeaveChartCarbs(ChartMouseEventArgs args)
+    {
+        _isTapHold = false;
+        _isTouch = false;
+        _isMouseMoveUpDetected = true;
+
+        ChartBg.HideTooltip();
+        ChartBolus.HideTooltip();
+
+        ChartBg.HideCrosshair();
+        ChartBolus.HideCrosshair();
     }
 
     public class ChartTimeData
