@@ -43,6 +43,7 @@ builder.Services.AddDataLayer(configuration);
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddTidepoolClient((settings, configuration) => configuration.GetSection("Tidepool").Bind(settings));
 builder.Services.AddTransient<TidepoolBgValuesSyncInvocable>();
+builder.Services.AddTransient<TidepoolBolusValuesSyncInvocable>();
 builder.Services.AddTransient<TidepoolBgValuesSyncService>();
 builder.Services.AddScheduler();
 builder.AddFhir();
@@ -60,6 +61,7 @@ builder.Services.AddHealthChecks();
 var app = builder.Build();
 
 //app.Services.UseScheduler(s => s.Schedule<TidepoolBgValuesSyncInvocable>().Hourly());
+app.Services.UseScheduler(s => s.Schedule<TidepoolBolusValuesSyncInvocable>().Hourly().RunOnceAtStart());
 
 // Add health check endpoint
 app.UseHealthChecks("/health");

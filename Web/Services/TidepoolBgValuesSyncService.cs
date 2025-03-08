@@ -18,11 +18,11 @@ public class TidepoolBgValuesSyncService(ITidepoolClientFactory tidepoolFactory,
         {
             var client = await tidepoolFactory.CreateAsync(user.TidepoolUsername, user.TidepoolPassword);
 
-            var lastValue = await connection.BgValues.OrderByDescending(x => x.Time).FirstOrDefaultAsync();
+            var lastValue = await connection.BgValues.Where(x => x.UserId == user.UserId).OrderByDescending(x => x.Time).FirstOrDefaultAsync();
             var lastTime = lastValue?.Time.AddMinutes(1) ?? DateTime.Today.AddDays(-7);
             var values = await client.GetBgValues(lastTime);
 
-            await connection.BgValues.AddRangeAsync(values.Select(x => new BgValue()
+            connection.BgValues.AddRange(values.Select(x => new BgValue()
             {
                 ExternalId = x.Id,
                 Time = x.Time!.Value,
