@@ -1,13 +1,16 @@
 ﻿@page "/Account/Manage"
 
 @using System.ComponentModel.DataAnnotations
+@using DataLayer
 @using DataLayer.Entities
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.EntityFrameworkCore
 
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
+@inject IDbContextFactory<ApplicationDbContext> Factory
 
 <PageTitle>Profile</PageTitle>
 
@@ -24,8 +27,28 @@
         </MudItem>
         <MudItem md="12">
             <MudStaticTextField For="@(() => Input.PhoneNumber)" @bind-Value="Input.PhoneNumber"
-                                Label="Phone Number" HelperText="Please enter your phone number."
-                                UserAttributes="@(new() { { "autocomplete", "tel-national" } } )" />
+            Label="Phone Number" HelperText="Please enter your phone number."
+            UserAttributes="@(new() { { "autocomplete", "tel-national" } })" />
+        </MudItem>
+        <MudItem md="12">
+            <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" FormAction="FormAction.Submit">Save</MudStaticButton>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+<MudText Typo="Typo.h6" GutterBottom="true">Tidepool</MudText>
+
+<EditForm Model="TidepoolInput" FormName="tidepool" OnValidSubmit="OnValidTidepoolSubmitAsync" method="post">
+    <DataAnnotationsValidator />
+
+    <MudGrid>
+        <MudItem md="12">
+            <MudStaticTextField Value="@TidepoolInput.Username" Label="Username" Disabled="true" Placeholder="Please enter your Tidepool username." />
+        </MudItem>
+        <MudItem md="12">
+            <MudStaticTextField For="@(() => TidepoolInput.Password)" @bind-Value="TidepoolInput.Password"
+            InputType="InputType.Password"
+            Label="Password" HelperText="Please enter your Tidepool password." />
         </MudItem>
         <MudItem md="12">
             <MudStaticButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" FormAction="FormAction.Submit">Save</MudStaticButton>
@@ -44,6 +67,9 @@
     [SupplyParameterFromForm]
     private InputModel Input { get; set; } = new();
 
+    [SupplyParameterFromForm]
+    private TidepoolInputModel TidepoolInput { get; set; } = new();
+
     protected override async Task OnInitializedAsync()
     {
         user = await UserAccessor.GetRequiredUserAsync(HttpContext);
@@ -51,6 +77,11 @@
         phoneNumber = await UserManager.GetPhoneNumberAsync(user);
 
         Input.PhoneNumber ??= phoneNumber;
+
+        using var connection = await Factory.CreateDbContextAsync();
+        var existingSettings = await connection.TidepoolUserSettings.FirstOrDefaultAsync(x => x.UserId == user.Id);
+        TidepoolInput.Username == existingSettings.TidepoolUsername;
+        TidepoolInput.Password == existingSettings.TidepoolPassword;
     }
 
     private async Task OnValidSubmitAsync()
@@ -68,10 +99,31 @@
         RedirectManager.RedirectToCurrentPageWithStatus("Your profile has been updated", HttpContext);
     }
 
+    private async Task OnValidTidepoolSubmitAsync()
+    {
+        if (string.IsNullOrWhiteSpace(TidepoolInput.Username) || string.IsNullOrWhiteSpace(TidepoolInput.Password))
+            return;
+
+        using var connection = await Factory.CreateDbContextAsync();
+        var existingSettings = await connection.TidepoolUserSettings.FirstOrDefaultAsync(x => x.UserId == user.Id);
+
+        existingSettings.TidepoolUsername = TidepoolInput.Username;
+        existingSettings.TidepoolPassword = TidepoolInput.Password;
+    }
+
     private sealed class InputModel
     {
         [Phone]
         [Display(Name = "Phone number")]
         public string? PhoneNumber { get; set; }
+    }
+
+    private sealed class TidepoolInputModel
+    {
+        [Display(Name = "Username")]
+        public string? Username { get; set; }
+
+        [Display(Name = "Password")]
+        public string? Password { get; set; }
     }
 }
