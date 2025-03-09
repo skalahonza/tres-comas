@@ -10,17 +10,20 @@
 <PageTitle>Home</PageTitle>
 
 <MudGrid>
-    <MudItem xs="6">
-        <MudText>You are doing great! Your range values are better about 15 %!</MudText>
+    <MudItem xs="2">
+        <MudText Typo="Typo.h1">@Progress.Emoji</MudText>
     </MudItem>
-    <MudItem xs="6">
+    <MudItem xs="10">
+        <MudText Typo="Typo.h3">@Progress.Description</MudText>
     </MudItem>
 
+    <div class="mt-8" />
+
     <MudItem xs="6">
-        <MudText Typo="Typo.h5">@DashboardDataService.PreviousStart.ToShortDateString() - @DashboardDataService.PreviousEnd.ToShortDateString()</MudText>
+        <MudText Typo="Typo.h5">@DashboardDataService.PreviousStart.ToString("dd. MM. yyyy") - @DashboardDataService.PreviousEnd.ToString("dd. MM. yyyy")</MudText>
     </MudItem>
     <MudItem xs="6">
-        <MudText Typo="Typo.h5">@DashboardDataService.CurrentStart.ToShortDateString() - @DashboardDataService.CurrentEnd.ToShortDateString()</MudText>
+        <MudText Typo="Typo.h5">@DashboardDataService.CurrentStart.ToString("dd. MM. yyyy") - @DashboardDataService.CurrentEnd.ToString("dd. MM. yyyy")</MudText>
     </MudItem>
 
     <MudItem xs="4">
@@ -125,6 +128,7 @@
 @code {
     private BarValues Prev { get; set; } = new();
     private BarValues Curr { get; set; } = new();
+    private Progress Progress { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -134,6 +138,8 @@
 
         Prev = CalculateGri(bgData.Prev);
         Curr = CalculateGri(bgData.Curr);
+
+        Progress = DashboardDataService.CalculateProgress(Prev.ToHistory(), Curr.ToHistory());
     }
 
     private BarValues CalculateGri(IEnumerable<BgValue> elements)
@@ -150,6 +156,11 @@
 
         griValues.TimeInRangeDetailsBar = rangeValues.TimeInRangeDetailsBar;
         griValues.TimeInRangeDetails = rangeValues.TimeInRangeDetails;
+        griValues.VeryHigh = rangeValues.VeryHigh;
+        griValues.High = rangeValues.High;
+        griValues.InRange = rangeValues.InRange;
+        griValues.Low = rangeValues.Low;
+        griValues.VeryLow = rangeValues.VeryLow;
 
         return griValues;   
     }
@@ -270,7 +281,12 @@
         return new BarValues()
             {
                 TimeInRangeDetails = timeInRangeDetails,
-                TimeInRangeDetailsBar = timeInRangeDetailsBar
+                TimeInRangeDetailsBar = timeInRangeDetailsBar,
+                VeryHigh = veryHigh,
+                High = high,
+                InRange = inRange,
+                Low = low,
+                VeryLow = veryLow
             };
     }
 
@@ -284,5 +300,22 @@
         public string? ZoneText { get; set; }
         public double HypoPercent { get; set; }
         public double HyperPercent { get; set; }
+
+        public double VeryHigh { get; set; }
+        public double High { get; set; }
+        public double InRange { get; set; }
+        public double Low { get; set; }
+        public double VeryLow { get; set; }
+
+        public History ToHistory()
+            => new()
+                {
+                    Gri = Gri,
+                    VeryHigh = VeryHigh,
+                    High = High,
+                    InRange = InRange,
+                    Low = Low,
+                    VeryLow = VeryLow
+                };
     }
 }

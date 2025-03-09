@@ -8,11 +8,11 @@ public class DashboardDataService(IDbContextFactory<ApplicationDbContext> contex
 {
     private const int STEP_SIZE = 3;
 
-    public DateTime PreviousStart => DateTime.Now.AddMonths(-2 * STEP_SIZE).Date.ToUniversalTime();
-    public DateTime PreviousEnd => DateTime.Now.AddMonths(-1 * STEP_SIZE).AddDays(1).Date.AddMilliseconds(-1).ToUniversalTime();
+    public static DateTime PreviousStart => DateTime.Now.AddMonths(-2 * STEP_SIZE).Date.ToUniversalTime();
+    public static DateTime PreviousEnd => DateTime.Now.AddMonths(-1 * STEP_SIZE).AddDays(1).Date.AddMilliseconds(-1).ToUniversalTime();
 
-    public DateTime CurrentStart => DateTime.Now.AddMonths(-1 * STEP_SIZE).AddDays(1).Date.ToUniversalTime();
-    public DateTime CurrentEnd => DateTime.Now.ToUniversalTime();
+    public static DateTime CurrentStart => DateTime.Now.AddMonths(-1 * STEP_SIZE).AddDays(1).Date.ToUniversalTime();
+    public static DateTime CurrentEnd => DateTime.Now.ToUniversalTime();
 
     public async Task<(List<BgValue> Prev, List<BgValue> Curr)> GetBgData()
     {
@@ -22,4 +22,42 @@ public class DashboardDataService(IDbContextFactory<ApplicationDbContext> contex
 
         return (previousBg, currentBg);
     }
+
+    public static Progress CalculateProgress(History prev, History curr)
+    {
+        Progress progress = new();
+
+        if (curr.Gri < prev.Gri)
+            progress.Emoji = "😁";
+        else if (curr.Gri == prev.Gri)
+            progress.Emoji = "🙂";
+        else
+            progress.Emoji = "☹️";
+
+        var inRangeDiff = curr.InRange - prev.InRange;
+        if (inRangeDiff > 0)
+            progress.Description += $"Great you are in range about {inRangeDiff} % more than in previous period. Hurray 🥳";
+        else if (inRangeDiff < 0)
+            progress.Description += $"Oh man you are too sweet (about {Math.Round(Math.Abs(inRangeDiff), 2)} % more than in the past). You should try harder!";
+        else
+            progress.Description += "You were able to hold you own and not move a step!";
+
+        return progress;
+    }
+}
+
+public class Progress
+{
+    public string Emoji { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+}
+
+public class History
+{
+    public int Gri { get; set; }
+    public double VeryHigh { get; set; }
+    public double High { get; set; }
+    public double InRange { get; set; }
+    public double Low { get; set; }
+    public double VeryLow { get; set; }
 }
