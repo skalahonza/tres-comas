@@ -37,6 +37,8 @@
     <MudText Typo="Typo.subtitle1">Loading @LoadingPart.</MudText>
 }
 
+<MudText Typo="Typo.h4" GutterBottom="true">Bg, bolus and carbs values</MudText>
+
 <SfChart @ref="ChartBg" Width="100%" Height="70%" Title="Bg values in time">
     <ChartEvents ChartMouseMove="OnMouseEventChartBg" ChartMouseUp="OnMouseLeaveChartBg" ChartMouseDown="ChartMouseDown" />
     <ChartPrimaryYAxis Title="Bg values (mmol/l)" />
@@ -79,6 +81,52 @@
 
 <MudGrid>
     <MudItem md="5">
+        <MudText Typo="Typo.subtitle1">Current average glucose: @AverageBg.ToString("0.0") mmol/l (SD: @Sd.ToString("0.0") mmol/l)</MudText>
+    </MudItem>
+    <MudItem md="5">
+        <MudText Typo="Typo.subtitle1">Previous average glucose: @AverageBgOld.ToString("0.0") mmol/l (SD: @SdOld.ToString("0.0") mmol/l)</MudText>
+    </MudItem>
+    <MudItem md="2">
+        <MudText Typo="Typo.subtitle1"></MudText>
+    </MudItem>
+    <MudItem md="4">
+        <MudText Typo="Typo.subtitle1">
+            Current sensor usage: @SensorUsage % @IntervalNotComplete
+        </MudText>
+    </MudItem>
+    <MudItem md="4">
+        <MudText Typo="Typo.subtitle1">Previous sensor usage: @SensorUsageOld %</MudText>
+    </MudItem>
+    <MudItem md="4">
+        @if (string.IsNullOrWhiteSpace(IntervalNotComplete))
+        {
+            @if (SensorUsageOld > SensorUsage)
+            {
+                <MudText Typo="Typo.subtitle1"><p style="font-weight: bold; color: red">You wear your sensor less often</p></MudText>
+            }
+            else if (SensorUsageOld < SensorUsage)
+            {
+                <MudText Typo="Typo.subtitle1"><p style="font-weight: bold; color: green">You wear your sensor more often</p></MudText>
+            }
+            else
+            {
+                <MudText Typo="Typo.subtitle1"></MudText>
+            }
+        }
+        else
+        {
+            <MudText Typo="Typo.subtitle1"></MudText>
+        }
+    </MudItem>
+    <MudItem md="12">
+        <MudText Typo="Typo.subtitle1"></MudText>
+    </MudItem>
+</MudGrid>
+
+<MudText Typo="Typo.h4" GutterBottom="true">Time in range evaluation</MudText>
+
+<MudGrid>
+    <MudItem md="5">
         <SfAccumulationChart Title="Time in range histogram - pie">
 
             <AccumulationChartTooltipSettings Enable="true" Format="${point.tooltip}" />
@@ -115,6 +163,7 @@
             </ChartSeriesCollection>
         </SfChart>
     </MudItem>
+
     <MudItem md="4">
         <MudText Typo="Typo.h1">&nbsp;</MudText>
         <MudText Typo="Typo.subtitle1">@TimeInRangeDetailsBar[0].Tooltip5Alt</MudText>
@@ -123,6 +172,10 @@
         <MudText Typo="Typo.h5">@TimeInRangeDetailsBar[0].Tooltip2Alt</MudText>
         <MudText Typo="Typo.subtitle1">@TimeInRangeDetailsBar[0].Tooltip1Alt</MudText>
         <MudText Typo="Typo.h1">&nbsp;</MudText>
+    </MudItem>
+
+    <MudItem md="12">
+        <MudText Typo="Typo.h4" GutterBottom="true">GRI statistics</MudText>
     </MudItem>
 
     <MudItem md="4">
@@ -150,19 +203,38 @@
         <MudText Typo="Typo.h5">&nbsp;</MudText>
         <MudText Typo="Typo.h1">&nbsp;</MudText>
     </MudItem>
+
+    <MudItem md="6">
+        <MudText Typo="Typo.h5" GutterBottom="true">Historic GRI (per 3 months result)</MudText>
+    </MudItem>
+
+    <MudItem md="10">
+        <SfChart Width="100%" Height="400px" Title="GRI values by months">
+            <ChartPrimaryYAxis Title="GRI value" />
+            <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Months" />
+
+            <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical" />
+            <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
+
+            <ChartSeriesCollection>
+                <ChartSeries DataSource="@ChartDataGriHistory" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="darkblue" Type="ChartSeriesType.Spline" />
+            </ChartSeriesCollection>
+        </SfChart>
+    </MudItem>
+
+    <MudItem md="2">
+        <MudText Typo="Typo.h5">&nbsp;</MudText>
+        <MudText Typo="Typo.subtitle1"></MudText>
+        <MudText Typo="Typo.h5">Max: @GriMax</MudText>
+        <MudText Typo="Typo.subtitle1">Date: @GriMaxDate</MudText>
+        <MudText Typo="Typo.subtitle1"></MudText>
+        <MudText Typo="Typo.h5">Min: @GriMin</MudText>
+        <MudText Typo="Typo.subtitle1">Date: @GriMinDate</MudText>
+        <MudText Typo="Typo.h5"></MudText>
+        <MudText Typo="Typo.subtitle1"></MudText>
+        <MudText Typo="Typo.h1">&nbsp;</MudText>
+    </MudItem>
 </MudGrid>
-
-<SfChart Width="100%" Height="70%" Title="GRI values by months">
-    <ChartPrimaryYAxis Title="GRI value" />
-    <ChartPrimaryXAxis ValueType="ValueType.DateTime" Title="Months" />
-
-    <ChartCrosshairSettings Enable="true" DashArray="2,2" LineType="LineType.Vertical" />
-    <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
-
-    <ChartSeriesCollection>
-        <ChartSeries DataSource="@ChartDataGriHistory" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="darkblue" Type="ChartSeriesType.Spline" />
-    </ChartSeriesCollection>
-</SfChart>
 
 @code {
     public SfChart ChartBg = null!;
@@ -175,11 +247,21 @@
     private bool _isMouseMoveUpDetected;
 
     public int Gri { get; set; }
+    public double Sd { get; set; }
+    public int GriMax { get; set; }
+    public int GriMin { get; set; }
+    public double SdOld { get; set; }
     public bool IsLoading { get; set; }
+    public int SensorUsage { get; set; }
+    public double AverageBg { get; set; }
     public string? ZoneText { get; set; }
+    public string? GriMaxDate { get; set; }
+    public string? GriMinDate { get; set; }
+    public int SensorUsageOld { get; set; }
     public double HypoPercent { get; set; }
-    public string? LoadingPart { get; set; }
+    public double AverageBgOld { get; set; }
     public double HyperPercent { get; set; }
+    public string? LoadingPart { get; set; }
     public DateTime EndDateTime { get; set; }
     public DateTime StartDateTime { get; set; }
     public List<ChartTimeData> ChartDataBg = [];
@@ -191,6 +273,7 @@
     public List<StatisticsPie> TimeInRangeDetails = [];
     public List<ChartTimeData> ChartDataGriHistory = [];
     public List<StatisticsBar> TimeInRangeDetailsBar = [new()];
+    public string IntervalNotComplete { get; set; } = "(Interval not finished)";
 
     protected async override Task OnInitializedAsync()
     {
@@ -232,6 +315,9 @@
             return;
         }
 
+        bgElements = bgElements.Where(x => x.Value.ToString().Length < 9).DistinctBy(x => x.Time).ToList();
+        bgElementsOld = bgElementsOld.Where(x => x.Value.ToString().Length < 9).DistinctBy(x => x.Time).ToList();
+
         HandleBgValuesChartData(bgElements, bgElementsOld);
         CalculateGri(bgElements);
 
@@ -272,6 +358,29 @@
             Y = x.Value,
             Unit = "mmol/l",
         }).ToList();
+
+        AverageBg = elements.Average(x => x.Value);
+        AverageBgOld = elementsOld.Average(x => x.Value);
+
+        Sd = standardDeviation(elements.Select(x => x.Value));
+        SdOld = standardDeviation(elementsOld.Select(x => x.Value));
+
+        var readingsInWeek = 2016;
+        SensorUsage = (int)(elements.Count() / (double)readingsInWeek * 100.0);
+        SensorUsageOld = (int)(elementsOld.Count() / (double)readingsInWeek * 100.0);
+    }
+
+    private double standardDeviation(IEnumerable<double> sequence)
+    {
+        double result = 0;
+
+        if (sequence.Any())
+        {
+            double average = sequence.Average();
+            double sum = sequence.Sum(d => Math.Pow(d - average, 2));
+            result = Math.Sqrt((sum) / sequence.Count());
+        }
+        return result;
     }
 
     private void CalculateGri(IEnumerable<BgValue> elements)
@@ -496,6 +605,15 @@
             dateTime = dateTime.AddMonths(-3);
         }
 
+        var griMax = chartData.MaxBy(x => x.Y);
+        var griMin = chartData.MinBy(x => x.Y);
+
+        GriMax = (int)griMax.Y;
+        GriMin = (int)griMin.Y;
+
+        GriMaxDate = griMax.X.ToString("MMMM yyyy");
+        GriMinDate = griMin.X.ToString("MMMM yyyy");
+
         IsLoading = false;
         ChartDataGriHistory = chartData;
         await InvokeAsync(() => StateHasChanged());
@@ -526,6 +644,7 @@
     {
         EndDateTime = EndDateTime.AddDays(-_daysCount);
         StartDateTime = StartDateTime.AddDays(-_daysCount);
+        IntervalNotComplete = string.Empty;
 
         await LoadData();
     }
@@ -537,6 +656,9 @@
 
         EndDateTime = EndDateTime.AddDays(_daysCount);
         StartDateTime = StartDateTime.AddDays(_daysCount);
+
+        if (EndDateTime > DateTime.Now)
+            IntervalNotComplete = "(Interval not finished)";
 
         await LoadData();
     }
