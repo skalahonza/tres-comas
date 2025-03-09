@@ -146,8 +146,8 @@
 
         var bgData = await DashboardDataService.GetBgData();
 
-        Curr = CalculateGri(bgData.Prev);
-        Prev = CalculateGri(bgData.Curr);
+        Prev = CalculateGri(bgData.Prev);
+        Curr = CalculateGri(bgData.Curr);
 
         Progress = DashboardDataService.CalculateProgress(Prev.ToHistory(), Curr.ToHistory());
     }
