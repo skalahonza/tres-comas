@@ -24,6 +24,7 @@ public class FhirSync(
         var users = await dbContext.Users.ToListAsync();
         var patients = await SyncPatients(users, fhir, dbContext);
         await SyncBgValues(users.ToDictionary(x => x.FhirId), fhir, dbContext);
+        await SyncBoluses(users.ToDictionary(x => x.FhirId), fhir, dbContext);
     }
     
     public async Task DeleteValues(string patientId)
@@ -134,6 +135,65 @@ public class FhirSync(
             }
         }
     }
+
+    private async Task SyncBoluses(Dictionary<string, ApplicationUser> users,
+        FhirClient fhir,
+        ApplicationDbContext dbContext)
+    {
+        logger.LogInformation("Syncing boluses for {UserCount} users", users.Count);
+        foreach (var user in users.Values)
+        {
+            logger.LogInformation("Syncing boluses for {UserEmail}", user.Email);
+            var date = DateTime.UtcNow.AddDays(-7);
+            var bolusValues = await dbContext.BolusValues
+                .Where(x => x.UserId == user.Id)
+                // last week only
+                .Where(x => x.Time >= date)
+                .Where(x => string.IsNullOrEmpty(x.FhirId))
+                .ToListAsync();
+            
+            logger.LogInformation("Found {BgValueCount} boluses for {UserEmail}", bolusValues.Count, user.Email);
+            if (bolusValues.Count == 0)
+            {
+                continue;
+            }
+            
+            var administrations = bolusValues.Select(x => x.CreateMedicationAdministration(user.FhirId)).ToList();
+
+            // Create a FHIR Bundle of type Transaction
+            var bundle = new Bundle
+            {
+                Type = Bundle.BundleType.Transaction,
+                Entry = new List<Bundle.EntryComponent>()
+            };
+
+            // Add Administrations to the Bundle
+            foreach (var administration in administrations)
+            {
+                bundle.Entry.Add(new Bundle.EntryComponent
+                {
+                    Resource = administration,
+                    Request = new Bundle.RequestComponent
+                    {
+                        Method = Bundle.HTTPVerb.POST,
+                        Url = "MedicationAdministration"
+                    }
+                });
+            }
+
+            // Send the transaction Bundle to FHIR server
+            try
+            {
+                var responseBundle = await fhir.TransactionAsync(bundle);
+                logger.LogInformation("Batch insert successful! Response Bundle ID: {ResponseBundleId}", responseBundle!.Id);
+                await dbContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error inserting batch observations");
+            }
+        }
+    }
     
     private async Task RemoveObservations(string patientId, FhirClient fhir)
     {
@@ -146,7 +206,7 @@ public class FhirSync(
                 var q = new SearchParams()
                     .Where($"subject=Patient/{patientId}")
                     .LimitTo(1000);
-                q.Count = 10;
+                q.Count = 100;
                 
                 var searchResult = await fhir.SearchAsync<Observation>(q);
 

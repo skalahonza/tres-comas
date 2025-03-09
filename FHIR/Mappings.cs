@@ -34,6 +34,30 @@ public static class Mappings
             Effective = new FhirDateTime(bgValue.Time)
         };
     }
+    
+    public static MedicationAdministration CreateMedicationAdministration(this BolusValue bolus, string patientId)
+    {
+        var id = Guid.CreateVersion7();
+        bolus.FhirId = id.ToString();
+        return new MedicationAdministration
+        {
+            Id = id.ToString(),
+            Subject = new ResourceReference($"Patient/{patientId}"),
+            Status = MedicationAdministration.MedicationAdministrationStatusCodes.Completed,
+            Medication = new CodeableConcept("http://snomed.info/sct", "16076005", "Insulin"),
+            Effective = new FhirDateTime(bolus.Time),
+            Dosage = new MedicationAdministration.DosageComponent
+            {
+                Dose = new Quantity
+                {
+                    Value = bolus.Unit,
+                    Unit = "units",
+                    System = "http://unitsofmeasure.org",
+                    Code = "U"
+                }
+            }
+        };
+    }
 
     public static Observation CreateCarbsValueObservation(CarbsValue carbsValue)
     {
