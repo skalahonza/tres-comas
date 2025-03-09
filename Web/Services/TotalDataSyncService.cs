@@ -8,6 +8,7 @@ using TresComas.Invocables;
 namespace TresComas.Services;
 
 public class TotalDataSyncService(
+    ILogger<TotalDataSyncService> logger,
     IDbContextFactory<ApplicationDbContext> contextFactory,
     UserProvider userProvider,
     ITidepoolClientFactory tidepoolClientFactory,
@@ -36,6 +37,12 @@ public class TotalDataSyncService(
 
     private async Task SyncTidepool(TidepoolUserSettings settings, DateTime startDate)
     {
+        if (string.IsNullOrEmpty(settings.TidepoolUsername) || string.IsNullOrEmpty(settings.TidepoolPassword))
+        {
+            logger.LogWarning("Tidepool username or password is missing");
+            return;
+        }
+        
         var client = await tidepoolClientFactory.CreateAsync(settings.TidepoolUsername, settings.TidepoolPassword);
         DateTime endDate;
         bool shouldContinue = true;
