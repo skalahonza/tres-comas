@@ -30,7 +30,11 @@
     </MudForm>
 </MudPaper>
 
-<MudButton Class="ml-auto mt-5" OnClick="Save" Variant="Variant.Filled" Color="Color.Primary">Save</MudButton>  
+<MudButton Class="ml-auto mt-5" Disabled="_isDemo" OnClick="Save" Variant="Variant.Filled" Color="Color.Primary">Save</MudButton>
+@if (_isDemo)
+{
+    <MudAlert Class="mt-4" Severity="Severity.Info">This feature is disabled in demo mode</MudAlert>
+}
 
 <div Class="pa-4"/>
 
@@ -40,7 +44,11 @@
         <MudSwitch Color="Color.Primary" Class="ml-auto" Label="@(_dexcomInput.Enabled ? "Enabled" : "Disabled")" @bind-Value="@_dexcomInput.Enabled" />
         @if (_dexcomInput.Enabled)
         {
-            <MudButton Class="ml-auto mt-5" OnClick="DexcomLogin" Variant="Variant.Filled" Color="Color.Primary" Disabled=@_dexcomInput.IsConnected>Login</MudButton>
+            <MudButton Class="ml-auto mt-5" OnClick="DexcomLogin" Variant="Variant.Filled" Color="Color.Primary" Disabled=@(_dexcomInput.IsConnected || _isDemo)>Login</MudButton>
+            @if (_isDemo)
+            {
+                <MudAlert Class="mt-4" Severity="Severity.Info">This feature is disabled in demo mode</MudAlert>
+            }
         }
     </MudForm>
 </MudPaper>
@@ -48,7 +56,7 @@
 <div Class="pa-4" />
 <h2>Data sync</h2>
 <MudDatePicker Label="Since data since" @bind-Date="@_syncStart" />
-<MudButton Class="ml-auto mt-5" OnClick="Sync" Variant="Variant.Filled" Color="Color.Primary" Disabled=@_syncInProgress>
+<MudButton Class="ml-auto mt-5" OnClick="Sync" Variant="Variant.Filled" Color="Color.Primary" Disabled=@(_syncInProgress || _isDemo)>
     @if (_syncInProgress)
     {
         <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
@@ -61,12 +69,18 @@
 </MudButton>
 <MudAlert Class="mt-4" Severity="Severity.Error">This action will clear all of you data!</MudAlert>
 
+@if (_isDemo)
+{
+    <MudAlert Class="mt-4" Severity="Severity.Info">Data are already synced for demo user</MudAlert>
+}
+
 
 @code {
     private readonly Input _input = new();
     private readonly DexcomInput _dexcomInput = new();
     private bool _syncInProgress = false;
     private DateTime? _syncStart = DateTime.Today.AddMonths(-6);
+    private bool _isDemo;
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,6 +112,8 @@
             _dexcomInput.Enabled = false;
             _dexcomInput.IsConnected = false;
         }
+
+        _isDemo = await UserProvider.IsDemo();
     }
 
     public async Task Save()
