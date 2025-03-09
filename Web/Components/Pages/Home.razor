@@ -14,7 +14,14 @@
 
 <MudGrid>
     <MudItem xs="2" Class="ma-4">
-        <MudText Typo="Typo.h1">@Progress.Emoji</MudText>
+        <div class="d-flex flex-column align-center align-content-space-between justify-center">
+         <MudText Typo="Typo.h1">@Progress.Emoji</MudText>
+         <MudTooltip Text="@Progress.TotalXp.ToString()">
+          <MudProgressLinear Color="Color.Success" Value="@Progress.LevelProgress"/>
+            <MudText Typo="Typo.h5">LVL. @Progress.Level</MudText>
+         </MudTooltip>
+
+    </div>
     </MudItem>
     <MudItem xs="8" Class="ma-4">
         <MudText Typo="Typo.h3">@Progress.Description</MudText>
@@ -139,8 +146,8 @@
 
         var bgData = await DashboardDataService.GetBgData();
 
-        Prev = CalculateGri(bgData.Prev);
-        Curr = CalculateGri(bgData.Curr);
+        Curr = CalculateGri(bgData.Prev);
+        Prev = CalculateGri(bgData.Curr);
 
         Progress = DashboardDataService.CalculateProgress(Prev.ToHistory(), Curr.ToHistory());
     }

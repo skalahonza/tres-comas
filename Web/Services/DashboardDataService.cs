@@ -36,11 +36,16 @@ public class DashboardDataService(IDbContextFactory<ApplicationDbContext> contex
 
         var inRangeDiff = curr.InRange - prev.InRange;
         if (inRangeDiff > 0)
-            progress.Description += $"Great you are in range about {inRangeDiff} % more than in previous period. Hurray 🥳";
+            progress.Description += $"Great you are in range about {Math.Round(inRangeDiff, 2)} % more than in previous period. Hurray 🥳";
         else if (inRangeDiff < 0)
             progress.Description += $"Oh man you are too sweet (about {Math.Round(Math.Abs(inRangeDiff), 2)} % more than in the past). You should try harder!";
         else
             progress.Description += "You were able to hold you own and not move a step!";
+
+        var inRangeXp = 50 * curr.InRange;
+        var lowXp = 10 * curr.Low;
+        var highXp = 10 * curr.High;
+        progress.TotalXp = (int)(inRangeXp + lowXp + highXp);
 
         return progress;
     }
@@ -50,6 +55,12 @@ public class Progress
 {
     public string Emoji { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public int Level => TotalXp / XpPerLevel;
+    public int LevelXp => TotalXp - (XpPerLevel * Level);
+    public int TotalXp { get; set; }
+    public double LevelProgress => 100 * LevelXp / 1000;
+
+    private static int XpPerLevel = 1000;
 }
 
 public class History
