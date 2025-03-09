@@ -38,7 +38,7 @@ public class DashboardDataService(IDbContextFactory<ApplicationDbContext> contex
         if (inRangeDiff > 0)
             progress.Description += $"Great you are in range about {Math.Round(inRangeDiff, 2)} % more than in previous period. Hurray 🥳";
         else if (inRangeDiff < 0)
-            progress.Description += $"Oh man you are too sweet (about {Math.Round(Math.Abs(inRangeDiff), 2)} % more than in the past). You should try harder!";
+            progress.Description += $"Oh man you are too sweet (about {Math.Round(Math.Abs(inRangeDiff), 2)} % more than in the past).";
         else
             progress.Description += "You were able to hold you own and not move a step!";
 
