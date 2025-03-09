@@ -1,4 +1,4 @@
-﻿@page "/counter"
+﻿@page "/statistics"
 
 @using DataLayer
 @using DataLayer.Entities
@@ -15,7 +15,7 @@
 @attribute [Authorize]
 @attribute [StreamRendering(true)]
 
-<PageTitle>Counter</PageTitle>
+<PageTitle>Statistics</PageTitle>
 
 <MudGrid>
     <MudItem md="8">
@@ -46,8 +46,8 @@
     <ChartTooltipSettings Enable="true" Format="${point.tooltip}" />
 
     <ChartSeriesCollection>
-        <ChartSeries DataSource="@ChartDataBg" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="darkblue" Type="ChartSeriesType.Spline" />
-        <ChartSeries DataSource="@ChartDataBgOld" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="red" Type="ChartSeriesType.Spline" />
+        <ChartSeries DataSource="@ChartDataBg" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="darkblue" Name="Current Bg values" Type="ChartSeriesType.Spline" />
+        <ChartSeries DataSource="@ChartDataBgOld" XName="X" YName="Y" TooltipMappingName="Tooltip" Fill="red" Name="Previous Bg values" Type="ChartSeriesType.Spline" />
     </ChartSeriesCollection>
 </SfChart>
 
@@ -170,7 +170,7 @@
     public SfChart ChartCarbs = null!;
     private bool _isTouch;
     private string? _userId;
-    private int _daysCount = 3;
+    private int _daysCount = 7;
     private bool _isTapHold = false;
     private bool _isMouseMoveUpDetected;
 
@@ -188,7 +188,7 @@
     public List<GriRangeValue> GriRangeValues = [];
     public List<ChartTimeData> ChartDataBolus = [];
     public List<ChartTimeData> ChartDataCarbs = [];
-    public List<Statistics> TimeInRangeDetails = [];
+    public List<StatisticsPie> TimeInRangeDetails = [];
     public List<ChartTimeData> ChartDataGriHistory = [];
     public List<StatisticsBar> TimeInRangeDetailsBar = [new()];
 
@@ -238,14 +238,14 @@
         var firstBgValue = bgElements[0];
         var lastBgValue = bgElements[^1];
 
-        LoadingPart = "Bolus values for previous time interval";
+        LoadingPart = "Bolus values";
         await InvokeAsync(() => StateHasChanged());
 
         var bolusElements = await connection.BolusValues.OrderBy(x => x.Time).Where(x => x.UserId == _userId && x.Time > StartDateTime && x.Time < EndDateTime).ToListAsync();
         var filteredBolus = bolusElements.Where(x => x.Time >= firstBgValue.Time && x.Time <= lastBgValue.Time);
         HandleBolusValuesChartData(filteredBolus, bgElements, firstBgValue, lastBgValue);
 
-        LoadingPart = "Carbs values for previous time interval";
+        LoadingPart = "Carbs values";
         await InvokeAsync(() => StateHasChanged());
 
         var carbsElements = await connection.CarbsValues.OrderBy(x => x.Time).Where(x => x.UserId == _userId && x.Time > StartDateTime && x.Time < EndDateTime).ToListAsync();
@@ -267,7 +267,7 @@
 
         ChartDataBgOld = elementsOld.Select(x => new ChartTimeData()
         {
-            X = x.Time.AddDays(3),
+            X = x.Time.AddDays(_daysCount),
             DateTimeTooltip = x.Time,
             Y = x.Value,
             Unit = "mmol/l",
@@ -366,11 +366,11 @@
         var inRange = 100 - veryLow - low - high - veryHigh;
         TimeInRangeDetails =
         [
-            new Statistics { Type = "Very low", Percent = veryLow, Fill = "darkred" },
-            new Statistics { Type = "Low", Percent = low, Fill = "pink" },
-            new Statistics { Type = "In range", Percent = inRange, Fill = "green" },
-            new Statistics { Type = "High", Percent = high , Fill = "yellow" },
-            new Statistics { Type = "Very high", Percent = veryHigh, Fill = "orange" },
+            new StatisticsPie { Type = "Very low", Percent = veryLow, Fill = "darkred" },
+            new StatisticsPie { Type = "Low", Percent = low, Fill = "pink" },
+            new StatisticsPie { Type = "In range", Percent = inRange, Fill = "green" },
+            new StatisticsPie { Type = "High", Percent = high , Fill = "yellow" },
+            new StatisticsPie { Type = "Very high", Percent = veryHigh, Fill = "orange" },
     ];
 
         TimeInRangeDetailsBar =
@@ -396,6 +396,7 @@
         var convertedValues = elements.Select(x => new ChartTimeData()
         {
             X = x.Time,
+            DateTimeTooltip = x.Time,
             Y = (double)x.Unit,
             Unit = x.Unit > 1 ? "units" : "unit",
         }).ToList();
@@ -404,6 +405,7 @@
             convertedValues.Insert(0, new()
             {
                 X = firstBgValue.Time,
+                DateTimeTooltip = firstBgValue.Time,
                 Y = 0.0001,
                 Unit = "Boundary mark",
             });
@@ -412,6 +414,7 @@
             convertedValues.Insert(0, new()
             {
                 X = lastBgValue.Time,
+                DateTimeTooltip = lastBgValue.Time,
                 Y = 0.0001,
                 Unit = "Boundary mark",
             });
@@ -421,6 +424,7 @@
             convertedValues.Add(new()
             {
                 X = dateTime,
+                DateTimeTooltip = dateTime,
                 Y = 0,
                 Unit = "unit",
             });
@@ -433,6 +437,7 @@
         var convertedValues = elements.Select(x => new ChartTimeData()
         {
             X = x.Time,
+            DateTimeTooltip = x.Time,
             Y = (double)x.Value,
             Unit = "g",
         }).ToList();
@@ -441,6 +446,7 @@
             convertedValues.Insert(0, new()
             {
                 X = firstBgValue.Time,
+                DateTimeTooltip = firstBgValue.Time,
                 Y = 0.0001,
                 Unit = "Boundary mark",
             });
@@ -449,6 +455,7 @@
             convertedValues.Insert(0, new()
             {
                 X = lastBgValue.Time,
+                DateTimeTooltip = lastBgValue.Time,
                 Y = 0.0001,
                 Unit = "Boundary mark",
             });
@@ -458,6 +465,7 @@
             convertedValues.Add(new()
             {
                 X = dateTime,
+                DateTimeTooltip = dateTime,
                 Y = 0,
                 Unit = "g",
             });
@@ -476,16 +484,16 @@
         LoadingPart = "historic GRI values";
         await InvokeAsync(() => StateHasChanged());
 
-        for (int i = 0; i < 12; i++)
+        for (int i = 0; i < 20; i++)
         {
-            var startDateTime = dateTime.AddMonths(-1);
+            var startDateTime = dateTime.AddMonths(-3);
             var temp = await connection.BgValues.OrderBy(x => x.Time).Where(x => x.UserId == _userId && x.Time > startDateTime && x.Time < dateTime).ToListAsync();
 
             if (!temp.Any())
                 continue;
 
             chartData.Add(AddHistoryGriChartValue(temp));
-            dateTime = dateTime.AddMonths(-1);
+            dateTime = dateTime.AddMonths(-3);
         }
 
         IsLoading = false;
@@ -517,7 +525,7 @@
     private async Task MoveBack()
     {
         EndDateTime = EndDateTime.AddDays(-_daysCount);
-        StartDateTime = EndDateTime.AddDays(-_daysCount);
+        StartDateTime = StartDateTime.AddDays(-_daysCount);
 
         await LoadData();
     }
@@ -528,7 +536,7 @@
             return;
 
         EndDateTime = EndDateTime.AddDays(_daysCount);
-        StartDateTime = EndDateTime.AddDays(_daysCount);
+        StartDateTime = StartDateTime.AddDays(_daysCount);
 
         await LoadData();
     }
@@ -683,7 +691,7 @@
         public string Tooltip5Alt => $"{Y5:0.00} % - {Type5}";
     }
 
-    public class Statistics
+    public class StatisticsPie
     {
         public string? Type { get; set; }
         public double Percent { get; set; }

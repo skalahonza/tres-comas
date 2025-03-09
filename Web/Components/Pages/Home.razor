@@ -3,7 +3,7 @@
 @using Syncfusion.Blazor.Charts
 @using TresComas.Services
 @using ValueType = Syncfusion.Blazor.Charts.ValueType
-@using static TresComas.Components.Pages.Counter
+@using static TresComas.Components.Pages.Statistics
 
 @inject DashboardDataService DashboardDataService
 
@@ -252,13 +252,13 @@
     private BarValues HandleTimeInRangeChartData(double veryLow, double low, double high, double veryHigh)
     {
         var inRange = 100 - veryLow - low - high - veryHigh;
-        List<Statistics> timeInRangeDetails =
+        List<StatisticsPie> timeInRangeDetails =
             [
-            new Statistics { Type = "Very low", Percent = veryLow, Fill = "darkred" },
-            new Statistics { Type = "Low", Percent = low, Fill = "pink" },
-            new Statistics { Type = "In range", Percent = inRange, Fill = "green" },
-            new Statistics { Type = "High", Percent = high , Fill = "yellow" },
-            new Statistics { Type = "Very high", Percent = veryHigh, Fill = "orange" },
+            new StatisticsPie { Type = "Very low", Percent = veryLow, Fill = "darkred" },
+            new StatisticsPie { Type = "Low", Percent = low, Fill = "pink" },
+            new StatisticsPie { Type = "In range", Percent = inRange, Fill = "green" },
+            new StatisticsPie { Type = "High", Percent = high , Fill = "yellow" },
+            new StatisticsPie { Type = "Very high", Percent = veryHigh, Fill = "orange" },
     ];
 
         List<StatisticsBar> timeInRangeDetailsBar =
@@ -292,7 +292,7 @@
 
     class BarValues
     {
-        public List<Statistics> TimeInRangeDetails { get; set; } = [];
+        public List<StatisticsPie> TimeInRangeDetails { get; set; } = [];
         public List<StatisticsBar> TimeInRangeDetailsBar { get; set; } = [new()];
         public List<ChartPoint> GriResultValue { get; set; } = [];
         public List<GriRangeValue> GriRangeValues { get; set; } = [];

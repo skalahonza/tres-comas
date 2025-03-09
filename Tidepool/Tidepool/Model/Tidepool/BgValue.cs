@@ -6,7 +6,7 @@ public class BgValue
 {
     [JsonProperty("clockDriftOffset")] public int? ClockDriftOffset { get; set; }
 
-    [JsonProperty("conversionOffset")] public int? ConversionOffset { get; set; }
+    [JsonProperty("conversionOffset")] public long? ConversionOffset { get; set; }
 
     [JsonProperty("deviceId")] public string DeviceId { get; set; }
 
