@@ -1,11 +1,15 @@
 ﻿using Dexcom.Models;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Pathoschild.Http.Client;
 
 namespace Dexcom.Services;
 
-internal class DexcomClientFactory(IOptions<DexcomOptions> options, HttpClient httpClient) : IDexcomClientFactory
+internal class DexcomClientFactory(
+    IOptions<DexcomOptions> options,
+    HttpClient httpClient,
+    ILogger<DexcomClientFactory> logger) : IDexcomClientFactory
 {
     private readonly IClient _client = new FluentClient(new Uri(options.Value.BaseUrl), httpClient);
     private DexcomOptions Conf => options.Value;
@@ -25,6 +29,13 @@ internal class DexcomClientFactory(IOptions<DexcomOptions> options, HttpClient h
         };
         var content = new FormUrlEncodedContent(formData);
         var response = await httpClient.PostAsync($"{Conf.BaseUrl}/v2/oauth2/token", content);
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            var text = await response.Content.ReadAsStringAsync();
+            logger.LogError("Error authorizing Dexcom: {Error}", text);
+        }
+        
         var responseContent = await response.Content.ReadAsStringAsync();
         var authResponse = JsonConvert.DeserializeObject<AuthResponse>(responseContent);
 
