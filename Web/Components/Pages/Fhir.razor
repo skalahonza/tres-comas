@@ -12,6 +12,7 @@
 
 <h1>Fhir</h1>
 This pages is for debugging and verification that the data are indeed synced to FHIR.
+Due to storage limitations and for the sake of demo, only last 7 days are synced.
 
 <h2>Patients in FHIR</h2>
 <MudDataGrid Items="@_patients">
@@ -20,6 +21,7 @@ This pages is for debugging and verification that the data are indeed synced to 
         <PropertyColumn Property="x => x.Name" Title="Name" />
         <PropertyColumn Property="x => x.Email" Title="Email" />
         <PropertyColumn Property="x => x.ObservationCount" Title="Observations" />
+        <PropertyColumn Property="x => x.MedicationAdministrationCount" Title="Medication Administrations" />
         <PropertyColumn Property="x => x.Json" Title="Json" />
     </Columns>
 </MudDataGrid>
@@ -49,6 +51,7 @@ This pages is for debugging and verification that the data are indeed synced to 
                 Name = patient.Name.ToFullName(),
                 Email = patient.GetEmail(),
                 ObservationCount = (await fhir.SearchAsync<Observation>([$"subject=Patient/{patient.Id}", "_summary=count"]))?.Total ?? 0,
+                MedicationAdministrationCount = (await fhir.SearchAsync<MedicationAdministration>([$"subject=Patient/{patient.Id}", "_summary=count"]))?.Total ?? 0,
                 Json = await patient.ToJsonAsync()
             });
         }
@@ -60,6 +63,7 @@ This pages is for debugging and verification that the data are indeed synced to 
         public required string Name { get; init; }
         public required string Email { get; init; }
         public required int ObservationCount { get; init; }
+        public required int MedicationAdministrationCount { get; init; }
         public required string Json { get; init; }
     }
 }
