@@ -608,8 +608,8 @@
         var griMax = chartData.MaxBy(x => x.Y);
         var griMin = chartData.MinBy(x => x.Y);
 
-        GriMax = (int)griMax.Y;
-        GriMin = (int)griMin.Y;
+        GriMax = (int)griMax!.Y;
+        GriMin = (int)griMin!.Y;
 
         GriMaxDate = griMax.X.ToString("MMMM yyyy");
         GriMinDate = griMin.X.ToString("MMMM yyyy");
