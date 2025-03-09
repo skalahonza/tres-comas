@@ -6,6 +6,9 @@ https://tres-comas.site/Account/Login?ReturnUrl=%2F
 You can use demo account, which has already data setup or you can register your own and connect to Tidepool by your own.
 You can browse and compare data to see how are you doing.
 
+## Video
+https://github.com/user-attachments/assets/26bb60ce-d182-4007-9d6e-48b2c8abcc79
+
 ## Technology
 + .Net 9 
 + Blazor
