@@ -1,11 +1,14 @@
 ﻿@page "/"
 @using DataLayer.Entities
+@using Microsoft.AspNetCore.Authorization
 @using Syncfusion.Blazor.Charts
 @using TresComas.Services
 @using ValueType = Syncfusion.Blazor.Charts.ValueType
 @using static TresComas.Components.Pages.Statistics
 
 @inject DashboardDataService DashboardDataService
+
+@attribute [Authorize]
 
 <PageTitle>Home</PageTitle>
 
